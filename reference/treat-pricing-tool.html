@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Treat Pricing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Spline+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f4f0e8; --ink:#1c1a17; --ink-soft:#56514a; --line:#d8d1c4;
+    --copper:#b5471f; --copper-deep:#8f3414; --brass:#c98a2b;
+    --card:#fbf9f4; --good:#3f6f43; --warn:#b07d12; --bad:#9a3b2c;
+    --shadow:0 1px 0 rgba(0,0,0,.04), 0 8px 28px -16px rgba(28,26,23,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--paper);color:var(--ink);font-family:"Spline Sans",sans-serif;line-height:1.5;
+    -webkit-font-smoothing:antialiased;background-image:radial-gradient(rgba(28,26,23,.025) 1px,transparent 1px);background-size:4px 4px}
+  .wrap{max-width:1060px;margin:0 auto;padding:28px 20px 60px}
+  .mono{font-family:"Space Mono",monospace}
+  h1,h2,h3{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.01em;margin:0}
+
+  header.top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 24px;border-bottom:2px solid var(--ink);padding-bottom:16px}
+  .brand{display:flex;align-items:baseline;gap:10px}
+  .brand h1{font-size:30px;line-height:1}
+  .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--copper);display:inline-block;transform:translateY(-2px)}
+  .brand .sub{font-size:13px;color:var(--ink-soft);letter-spacing:.02em}
+  .stat-strip{display:flex;gap:18px;margin-left:auto;flex-wrap:wrap}
+  .stat{font-size:12px;color:var(--ink-soft);line-height:1.2}
+  .stat b{display:block;font-family:"Bricolage Grotesque";font-weight:700;font-size:18px;color:var(--ink)}
+
+  .principle{margin:16px 0 22px;font-size:13.5px;color:var(--ink-soft);border-left:3px solid var(--brass);padding:2px 0 2px 14px}
+  .principle b{color:var(--ink)}
+
+  nav.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:22px}
+  .tab{font-family:"Bricolage Grotesque";font-weight:700;font-size:14px;border:1.5px solid var(--line);
+    background:transparent;color:var(--ink-soft);padding:9px 16px;border-radius:999px;cursor:pointer;transition:.15s}
+  .tab:hover{border-color:var(--ink);color:var(--ink)}
+  .tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+  .panel{display:none;animation:fade .25s ease}
+  .panel.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:22px}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+
+  .card{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow);margin-bottom:18px}
+  .card:last-child{margin-bottom:0}
+  .card h3{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);font-weight:700;margin-bottom:14px}
+  .card h3 .lite{font-weight:400;text-transform:none;letter-spacing:0}
+
+  .seg{display:flex;background:#ece6da;border-radius:10px;padding:3px;margin-bottom:16px}
+  .seg button{flex:1;border:0;background:transparent;font-family:"Bricolage Grotesque";font-weight:700;font-size:14px;
+    color:var(--ink-soft);padding:9px;border-radius:8px;cursor:pointer;transition:.15s}
+  .seg button.on{background:var(--paper);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+
+  .cats{display:flex;flex-direction:column;gap:7px}
+  .cat{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;
+    border:1.5px solid var(--line);background:var(--paper);border-radius:10px;padding:11px 13px;cursor:pointer;transition:.13s;font-size:14px;color:var(--ink)}
+  .cat:hover{border-color:var(--copper)}
+  .cat.on{border-color:var(--copper);background:#fff;box-shadow:inset 0 0 0 1px var(--copper)}
+  .cat .nm{font-weight:500}
+  .cat .med{font-family:"Space Mono";font-weight:700;font-size:14px}
+  .cat .meta{font-size:11px;color:var(--ink-soft)}
+  .pill{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:999px;white-space:nowrap}
+  .pill.high{background:#e3eee2;color:var(--good)}
+  .pill.medium{background:#f5ecd2;color:var(--warn)}
+  .pill.low{background:#f1ddd7;color:var(--bad)}
+  .legend{font-size:11.5px;color:var(--ink-soft);margin-top:12px;line-height:1.45}
+
+  .cond{display:flex;align-items:flex-start;gap:11px;padding:10px 2px;border-bottom:1px dashed var(--line);cursor:pointer}
+  .cond:last-child{border-bottom:0}
+  .cond .box{width:20px;height:20px;border:1.5px solid var(--ink-soft);border-radius:5px;flex:none;display:grid;place-items:center;transition:.12s;margin-top:1px}
+  .cond.on .box{background:var(--copper);border-color:var(--copper)}
+  .cond .box svg{opacity:0;width:12px;height:12px}
+  .cond.on .box svg{opacity:1}
+  .cond .lab{flex:1;font-size:14px}
+  .cond .lab small{display:block;color:var(--ink-soft);font-size:11.5px}
+  .cond .lab .hint{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--brass);margin-left:6px}
+  .cond .amt{font-family:"Space Mono";font-weight:700;font-size:13.5px;white-space:nowrap;color:var(--copper-deep)}
+  .muted-card{opacity:.5;pointer-events:none}
+
+  .readout{position:sticky;top:14px;background:var(--ink);color:var(--paper);border-radius:14px;padding:22px;box-shadow:var(--shadow)}
+  .readout .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#b7afa1}
+  .readout .big{font-family:"Bricolage Grotesque";font-weight:800;font-size:44px;line-height:1;margin:6px 0 2px;color:#fff}
+  .readout .band{font-family:"Space Mono";font-size:14px;color:#d8cfbf}
+  .readout .ctx{font-size:12.5px;color:#c8bfb0;margin-top:14px;border-top:1px solid #38342d;padding-top:12px}
+  .readout .breakdown{margin-top:12px;font-size:12.5px}
+  .readout .breakdown div{display:flex;justify-content:space-between;padding:3px 0;color:#d8cfbf}
+  .readout .breakdown .sub{border-top:1px solid #38342d;margin-top:5px;padding-top:6px;color:#efe7d8}
+  .readout .breakdown .gst{border-top:1px solid #38342d;margin-top:6px;padding-top:7px;color:#fff;font-weight:600}
+  .readout .placeholder{color:#7d766a;font-size:14px;padding:18px 0}
+  .tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    background:#38342d;color:#e7c98a;padding:2px 8px;border-radius:999px;margin-top:10px}
+
+  .slider-row{display:flex;align-items:center;gap:16px;margin:18px 0}
+  input[type=range]{flex:1;accent-color:var(--copper);height:5px}
+  .metre-val{font-family:"Bricolage Grotesque";font-weight:800;font-size:34px;min-width:96px}
+  .metre-val small{font-size:14px;color:var(--ink-soft);font-weight:500}
+  .reline-out{font-family:"Bricolage Grotesque";font-weight:800;font-size:40px;color:var(--copper-deep)}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line)}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);font-weight:700}
+  td.num,th.num{text-align:right;font-family:"Space Mono"}
+  .winbar{height:7px;border-radius:4px;background:#e7ddca;overflow:hidden;margin-top:5px}
+  .winbar span{display:block;height:100%;background:linear-gradient(90deg,var(--copper),var(--brass))}
+
+  .note{font-size:13px;color:var(--ink-soft);background:#efe9dd;border-radius:10px;padding:12px 14px;margin-top:14px}
+  .note b{color:var(--ink)}
+  .method li{margin-bottom:11px;font-size:14px}
+  .method b{font-family:"Bricolage Grotesque";font-weight:700}
+  .foot{font-size:11.5px;color:var(--ink-soft);margin-top:28px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <span class="dot"></span>
+      <h1>Treat Pricing</h1>
+      <span class="sub">job pricing assistant &middot; built from invoiced history</span>
+    </div>
+    <div class="stat-strip">
+      <div class="stat"><b id="s-jobs"></b>completed jobs</div>
+      <div class="stat"><b id="s-quotes"></b>quotes</div>
+      <div class="stat"><b>Jan 23 to Jun 26</b>data window</div>
+    </div>
+  </header>
+
+  <p class="principle">
+    Three layers build the price. A <b>base works rate</b> for the job type, a set of <b>characteristics</b> that move it up or down,
+    then the <b>standard add ons</b> stacked on top the way they get charged on the invoice. The base is the core works only, with the named add on
+    line items taken out, so nothing is counted twice. There is no cost data behind the figures, so the tool estimates the price but not the margin.
+  </p>
+
+  <nav class="tabs">
+    <button class="tab on" data-p="builder">Price a job</button>
+    <button class="tab" data-p="relining">Relining calculator</button>
+    <button class="tab" data-p="outcomes">Quote outcomes</button>
+    <button class="tab" data-p="method">Method &amp; caveats</button>
+  </nav>
+
+  <!-- BUILDER -->
+  <section class="panel on" id="builder">
+    <div class="grid">
+      <div>
+        <div class="card">
+          <h3>1 &nbsp; Choose the work</h3>
+          <div class="seg" id="engineSeg">
+            <button class="on" data-eng="reactive">Reactive (attend &amp; fix)</button>
+            <button data-eng="quoted">Quoted works</button>
+          </div>
+          <div class="cats" id="catList"></div>
+          <div class="legend" id="legend"></div>
+        </div>
+
+        <div class="card" id="condCard">
+          <h3>2 &nbsp; Characteristics <span class="lite">(move the base up or down)</span></h3>
+          <div id="condList"></div>
+          <div class="note" id="condNote"></div>
+        </div>
+
+        <div class="card" id="addCard">
+          <h3>3 &nbsp; Standard add ons <span class="lite">(charged on top, tick what you will bill)</span></h3>
+          <div id="addonList"></div>
+          <div class="note">Fixed line item rates Treat charges. The ones usual for the chosen job type are ticked for you. Untick or add as the job needs.</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="readout" id="readout">
+          <div class="lbl">Suggested price (ex GST)</div>
+          <div id="ro-body"><div class="placeholder">Pick a job type on the left to begin.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RELINING -->
+  <section class="panel" id="relining">
+    <div class="grid">
+      <div class="card">
+        <h3>Pipe relining estimate</h3>
+        <p style="font-size:14px;color:var(--ink-soft);margin-top:0">Relining quotes scale with length plus a fixed set up. Slide to the metres being relined.</p>
+        <div class="slider-row">
+          <input type="range" id="metreSlider" min="1" max="40" value="8" step="1">
+          <div class="metre-val"><span id="metreNum">8</span><small> m</small></div>
+        </div>
+        <div style="border-top:1px solid var(--line);padding-top:16px;margin-top:6px">
+          <div class="lbl" style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-soft)">Indicative quote (ex GST)</div>
+          <div class="reline-out" id="relineOut"></div>
+          <div class="mono" style="font-size:13px;color:var(--ink-soft);margin-top:4px" id="relineFormula"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>How firm is this</h3>
+        <p style="font-size:14px;color:var(--ink-soft)">
+          Fitted on <b id="rel-n"></b> approved relining quotes that stated a length. Length explains only about <b id="rel-r2"></b> of the price, so access, depth, bends and reinstatement move it a lot. Treat it as a starting point, not a locked figure.</p>
+        <div class="note">Median approved relining quote is <b id="rel-med"></b>, with most between <b id="rel-band"></b>. Use the slider for a length steer, then check it against that band.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OUTCOMES -->
+  <section class="panel" id="outcomes">
+    <div class="card">
+      <h3>Quote conversion by work type <span class="lite">(pending counted as not won)</span></h3>
+      <table>
+        <thead><tr><th>Work type</th><th class="num">Won</th><th class="num">Rejected</th><th class="num">Still pending</th><th class="num">Win rate</th></tr></thead>
+        <tbody id="wlBody"></tbody>
+      </table>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>Headline</h3>
+        <p style="font-size:14px;margin-top:0">Counting pending quotes as not won, the realistic overall conversion is <b id="o-win"></b>. A quote left sitting unconverted is treated as a job not landed.</p>
+      </div>
+      <div class="card">
+        <h3>One caveat</h3>
+        <p style="font-size:13.5px;color:var(--ink-soft);margin-top:0">Only <b id="o-rej"></b> quotes are formally marked rejected, while <b id="o-pend"></b> sit pending. So pending mixes genuine losses with quotes that merely stalled. The approvals are reliable, the split between dead and dormant is not.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- METHOD -->
+  <section class="panel" id="method">
+    <div class="card">
+      <h3>How a price is built</h3>
+      <ul class="method" style="padding-left:18px;margin:0">
+        <li><b>Base works rate.</b> The typical core works amount Treat invoiced for that job type, learned from history. The named add on line items are taken out first, so the base is the works only. It is not hours times a rate.</li>
+        <li><b>Characteristics.</b> Things about the job that make the core works cost more, fitted per type from the history: excavation, difficult access, multiple units, replacement, and after hours. Only drivers the data actually supports for that type are shown, so a wide type like burst pipe resolves to a real number once you say what the job involves.</li>
+        <li><b>Standard add ons.</b> The fixed line item charges, callout, jet, camera, eel, leak detection, stacked on top the way they appear on the invoice. The ones usual for a job type are ticked by default. Because they were stripped out of the base, adding them here counts them once, not twice. After hours appears in both places on purpose: the works premium sits in the characteristic, the fixed callout fee sits in the add on.</li>
+        <li><b>No margin, by design.</b> Material cost is blank on most jobs and the labour cost field mirrors the sell price, so there is no cost base. The tool estimates the price, not the margin.</li>
+        <li><b>Two populations.</b> Reactive is attend and fix, priced after the fact. Quoted works are scoped up front and priced on scope and quantity, so the characteristics and add ons apply to reactive only. The two are not additive.</li>
+        <li><b>Classification is first pass.</b> Job types come from keywords in the work performed narrative, after stripping recommended future works. The buckets and drivers can be refined as the tool is used.</li>
+      </ul>
+      <div class="note" style="margin-top:16px"><b>Sample label.</b> The high, medium and low flag is how much history sits behind a type: high is 40 or more jobs, medium 15 to 39, low under 15. It says how much evidence there is, not how certain the price is.</div>
+    </div>
+  </section>
+
+  <div class="foot">Treat Plumbing pricing pilot &middot; figures are decision support, the final price is set on the job.</div>
+</div>
+
+<script>
+const DATA = {"window":"Jan 2023 to Jun 2026","counts":{"completed_jobs":7026,"reactive_jobs":4913,"won_quoted_jobs":2113,"distinct_quotes":4005,"approved_quotes":1950},"split_pct":{"reactive":69.9,"quoted":30.1},"reactive":[{"category":"Tap / fixture repair","n":1012,"median":450,"confidence":"high","base":431,"band_lo":0.67,"band_hi":1.367,"conditions":[{"key":"access","label":"Difficult access","help":"Roof, riser, ceiling cavity, confined space or height work.","factor":1.663,"pct":66},{"key":"excavation","label":"Excavation or breaking concrete","help":"Digging, jackhammering, cutting out, chasing walls or core drilling.","factor":1.398,"pct":40},{"key":"after_hours","label":"After hours / emergency","help":"Out of hours attendance. This is the works premium only. The fixed callout fee is a separate add on.","factor":1.227,"pct":23}],"default_addons":[],"common_addons":[]},{"category":"Hot water / TMV","n":865,"median":660,"confidence":"high","base":543,"band_lo":0.645,"band_hi":1.483,"conditions":[{"key":"excavation","label":"Excavation or breaking concrete","help":"Digging, jackhammering, cutting out, chasing walls or core drilling.","factor":1.787,"pct":79},{"key":"access","label":"Difficult access","help":"Roof, riser, ceiling cavity, confined space or height work.","factor":1.344,"pct":34},{"key":"after_hours","label":"After hours / emergency","help":"Out of hours attendance. This is the works premium only. The fixed callout fee is a separate add on.","factor":1.28,"pct":28}],"default_addons":[],"common_addons":[]},{"category":"Drain clear (jet/hydro)","n":801,"median":860,"confidence":"high","base":789,"band_lo":0.725,"band_hi":1.33,"conditions":[{"key":"multi_unit","label":"Multiple units affected","help":"Work spanning two or more units or tenancies.","factor":1.474,"pct":47},{"key":"excavation","label":"Excavation or breaking concrete","help":"Digging, jackhammering, cutting out, chasing walls or core drilling.","factor":1.363,"pct":36},{"key":"after_hours","label":"After hours / emergency","help":"Out of hours attendance. This is the works premium only. The fixed callout fee is a separate add on.","factor":1.338,"pct":34},{"key":"replace","label":"Replacing or installing a unit","help":"Supplying and fitting new gear rather than repairing what is there.","factor":1.249,"pct":25}],"default_addons":["Jet blaster","Drain camera survey (CCTV)"],"common_addons":[]},{"category":"Burst pipe repair","n":595,"median":740,"confidence":"high","base":649,"band_lo":0.709,"band_hi":1.315,"conditions":[{"key":"excavation","label":"Excavation or breaking concrete","help":"Digging, jackhammering, cutting out, chasing walls or core drilling.","factor":1.449,"pct":45},{"key":"after_hours","label":"After hours / emergency","help":"Out of hours attendance. This is the works premium only. The fixed callout fee is a separate add on.","factor":1.362,"pct":36}],"default_addons":[],"common_addons":[]},{"category":"Leak investigation","n":530,"median":530,"confidence":"high","base":492,"band_lo":0.725,"band_hi":1.289,"conditions":[{"key":"replace","label":"Replacing or installing a unit","help":"Supplying and fitting new gear rather than repairing what is there.","factor":1.212,"pct":21},{"key":"excavation","label":"Excavation or breaking concrete","help":"Digging, jackhammering, cutting out, chasing walls or core drilling.","factor":1.179,"pct":18},{"key":"access","label":"Difficult access","help":"Roof, riser, ceiling cavity, confined space or height work.","factor":1.15,"pct":15}],"default_addons":[],"common_addons":[]},{"category":"Drain clear (electric eel)","n":409,"median":680,"confidence":"high","base":672,"band_lo":0.803,"band_hi":1.197,"conditions":[{"key":"multi_unit","label":"Multiple units affected","help":"Work spanning two or more units or tenancies.","factor":1.34,"pct":34},{"key":"after_hours","label":"After hours / emergency","help":"Out of hours attendance. This is the works premium only. The fixed callout fee is a separate add on.","factor":1.293,"pct":29},{"key":"excavation","label":"Excavation or breaking concrete","help":"Digging, jackhammering, cutting out, chasing walls or core drilling.","factor":1.251,"pct":25},{"key":"replace","label":"Replacing or installing a unit","help":"Supplying and fitting new gear rather than repairing what is there.","factor":1.214,"pct":21}],"default_addons":[],"common_addons":[]},{"category":"Investigation / attendance","n":276,"median":484,"confidence":"high","base":502,"band_lo":0.678,"band_hi":1.335,"conditions":[{"key":"excavation","label":"Excavation or breaking concrete","help":"Digging, jackhammering, cutting out, chasing walls or core drilling.","factor":1.172,"pct":17},{"key":"replace","label":"Replacing or installing a unit","help":"Supplying and fitting new gear rather than repairing what is there.","factor":1.121,"pct":12}],"default_addons":[],"common_addons":[]},{"category":"Blockage clear (general)","n":238,"median":640,"confidence":"high","base":646,"band_lo":0.704,"band_hi":1.431,"conditions":[{"key":"excavation","label":"Excavation or breaking concrete","help":"Digging, jackhammering, cutting out, chasing walls or core drilling.","factor":1.189,"pct":19},{"key":"access","label":"Difficult access","help":"Roof, riser, ceiling cavity, confined space or height work.","factor":1.142,"pct":14}],"default_addons":[],"common_addons":[]},{"category":"Leak repair","n":115,"median":520,"confidence":"high","base":457,"band_lo":0.665,"band_hi":1.27,"conditions":[{"key":"after_hours","label":"After hours / emergency","help":"Out of hours attendance. This is the works premium only. The fixed callout fee is a separate add on.","factor":1.406,"pct":41},{"key":"access","label":"Difficult access","help":"Roof, riser, ceiling cavity, confined space or height work.","factor":1.318,"pct":32}],"default_addons":[],"common_addons":[]},{"category":"Other reactive","n":35,"median":620,"confidence":"medium","base":620,"band_lo":0.774,"band_hi":3.357,"conditions":[],"default_addons":[],"common_addons":[]},{"category":"Backflow / TMV","n":24,"median":680,"confidence":"medium","base":680,"band_lo":0.647,"band_hi":1.125,"conditions":[],"default_addons":[],"common_addons":[]}],"quoted":[{"category":"Excavation / pipe replacement","n":632,"median":3840,"p25":2480,"p75":5750,"confidence":"high"},{"category":"Remedial / building works","n":310,"median":1940,"p25":1280,"p75":2780,"confidence":"high"},{"category":"Stormwater works","n":232,"median":1580,"p25":1180,"p75":1980,"confidence":"high"},{"category":"Pipe relining","n":195,"median":6468,"p25":4540,"p75":9909,"confidence":"high"},{"category":"Preventative maintenance / clear-out","n":162,"median":1180,"p25":942,"p75":1328,"confidence":"high"},{"category":"Other quoted","n":149,"median":1580,"p25":1040,"p75":2720,"confidence":"high"},{"category":"Hot water","n":56,"median":2790,"p25":1448,"p75":4008,"confidence":"high"},{"category":"Tap / fixture","n":44,"median":1210,"p25":850,"p75":1740,"confidence":"high"},{"category":"Pump works","n":35,"median":1450,"p25":850,"p75":2565,"confidence":"medium"},{"category":"Backflow / TMV","n":20,"median":1380,"p25":635,"p75":2225,"confidence":"medium"}],"reline_model":{"setup":4853,"per_metre":546,"n":149,"r2":0.43},"addons":[{"name":"Emergency after-hours callout","typical":380,"n":469},{"name":"Jet blaster","typical":300,"n":809},{"name":"Drain camera survey (CCTV)","typical":250,"n":787},{"name":"Electric eel","typical":200,"n":50},{"name":"Pipe location / leak detection","typical":550,"n":88}],"winloss":[{"category":"Excavation / pipe replacement","approved":663,"rejected":52,"pending":508,"win_rate":54.2},{"category":"Remedial / building works","approved":329,"rejected":27,"pending":440,"win_rate":41.3},{"category":"Pipe relining","approved":211,"rejected":10,"pending":270,"win_rate":43.0},{"category":"Stormwater works","approved":246,"rejected":15,"pending":208,"win_rate":52.5},{"category":"Preventative maintenance / clear-out","approved":169,"rejected":21,"pending":147,"win_rate":50.1},{"category":"Other quoted","approved":165,"rejected":15,"pending":154,"win_rate":49.4},{"category":"Hot water","approved":61,"rejected":8,"pending":64,"win_rate":45.9},{"category":"Tap / fixture","approved":51,"rejected":4,"pending":57,"win_rate":45.5},{"category":"Pump works","approved":35,"rejected":1,"pending":28,"win_rate":54.7},{"category":"Backflow / TMV","approved":20,"rejected":3,"pending":22,"win_rate":44.4}],"status_counts":{"Approved":1950,"Pending Approval":1699,"In Progress":199,"Rejected":156},"overall_winrate":48.7};
+
+const $=s=>document.querySelector(s);
+const money=n=>'$'+Math.round(n).toLocaleString('en-AU');
+
+$('#s-jobs').textContent=DATA.counts.completed_jobs.toLocaleString();
+$('#s-quotes').textContent=DATA.counts.distinct_quotes.toLocaleString();
+
+let engine='reactive', selCat=null, sel={}, addSel={};
+
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on'); $('#'+t.dataset.p).classList.add('on');
+});
+
+document.querySelectorAll('#engineSeg button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#engineSeg button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); engine=b.dataset.eng; selCat=null; sel={}; addSel={};
+  renderCats(); renderConditions(); renderAddons(); renderReadout();
+});
+
+function renderCats(){
+  const list=$('#catList'); list.innerHTML='';
+  DATA[engine].forEach((c,i)=>{
+    const el=document.createElement('button');
+    el.className='cat'+(selCat===i?' on':'');
+    const head=engine==='reactive'?money(c.base):money(c.median);
+    el.innerHTML=`<span class="nm">${c.category}<br><span class="meta">${c.n.toLocaleString()} jobs on record</span></span>
+      <span style="text-align:right"><span class="med">${head}</span><br><span class="pill ${c.confidence}">${c.confidence}</span></span>`;
+    el.onclick=()=>{
+      selCat=i; sel={}; addSel={};
+      if(engine==='reactive') (DATA.reactive[i].default_addons||[]).forEach(n=>addSel[n]=true);
+      renderCats(); renderConditions(); renderAddons(); renderReadout();
+    };
+    list.appendChild(el);
+  });
+  $('#legend').innerHTML=engine==='reactive'
+    ? 'The figure is the base works rate for the type, add ons excluded. The flag is how much history backs it: <b>high</b> 40+ jobs, <b>medium</b> 15 to 39, <b>low</b> under 15.'
+    : 'The figure is the median approved quote for the type. Quoted works are priced on scope and quantity, so place the job in the range by how big it is.';
+}
+
+const CHECK='<svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" fill="none" stroke="#fff" stroke-width="2"/></svg>';
+
+function renderConditions(){
+  const card=$('#condCard'), list=$('#condList'), note=$('#condNote');
+  if(engine!=='reactive'){ card.classList.add('muted-card'); list.innerHTML=''; note.innerHTML='Quoted works are priced on scope and quantity, so characteristics do not apply. For relining use the calculator tab.'; return; }
+  card.classList.remove('muted-card'); list.innerHTML='';
+  if(selCat===null){ note.innerHTML='Pick a job type first. Each type shows the characteristics that actually move its price.'; return; }
+  const c=DATA.reactive[selCat];
+  if(!c.conditions.length){ note.innerHTML='For this type the history shows no characteristic that reliably moves the price, so it stays at the base. Read the job on its merits.'; return; }
+  c.conditions.forEach(cd=>{
+    const el=document.createElement('div'); el.className='cond'+(sel[cd.key]?' on':'');
+    el.innerHTML=`<span class="box">${CHECK}</span><span class="lab">${cd.label}<small>${cd.help}</small></span><span class="amt">+${cd.pct}%</span>`;
+    el.onclick=()=>{sel[cd.key]=!sel[cd.key]; renderConditions(); renderReadout();};
+    list.appendChild(el);
+  });
+  note.innerHTML='Specific to this job type and drawn from what similar jobs were charged. Stacking several suits a genuinely big job, but reads high if over applied.';
+}
+
+function renderAddons(){
+  const card=$('#addCard'), list=$('#addonList');
+  if(engine!=='reactive'){ card.classList.add('muted-card'); list.innerHTML=''; return; }
+  card.classList.remove('muted-card'); list.innerHTML='';
+  const c=selCat!==null?DATA.reactive[selCat]:null;
+  DATA.addons.forEach(a=>{
+    const usual=c&&c.default_addons.includes(a.name);
+    const common=c&&c.common_addons.includes(a.name);
+    const el=document.createElement('div'); el.className='cond'+(addSel[a.name]?' on':'');
+    let hint=usual?'<span class="hint">usual for this type</span>':(common?'<span class="hint">sometimes</span>':'');
+    el.innerHTML=`<span class="box">${CHECK}</span><span class="lab">${a.name}${hint}<small>seen on ${a.n} invoices</small></span><span class="amt">+${money(a.typical)}</span>`;
+    el.onclick=()=>{addSel[a.name]=!addSel[a.name]; renderAddons(); renderReadout();};
+    list.appendChild(el);
+  });
+}
+
+function renderReadout(){
+  const body=$('#ro-body');
+  if(selCat===null){ body.innerHTML='<div class="placeholder">Pick a job type on the left to begin.</div>'; return; }
+  const c=DATA[engine][selCat];
+  if(engine==='quoted'){
+    body.innerHTML=`<div class="big">${money(c.median)}</div>
+      <div class="band">most land ${money(c.p25)} to ${money(c.p75)}</div>
+      <div class="ctx">Priced from <b style="color:#fff">${c.n}</b> approved quotes of this type. Scope and quantity set the final figure.</div>
+      <span class="tag">${c.n} approved quotes</span>`;
+    return;
+  }
+  let factor=1, condLines='';
+  c.conditions.forEach(cd=>{ if(sel[cd.key]){ factor*=cd.factor; condLines+=`<div><span>+ ${cd.label}</span><span class="mono">+${cd.pct}%</span></div>`; } });
+  const works=c.base*factor, wLo=works*c.band_lo, wHi=works*c.band_hi;
+  let addTotal=0, addLines='';
+  DATA.addons.forEach(a=>{ if(addSel[a.name]){ addTotal+=a.typical; addLines+=`<div><span>+ ${a.name}</span><span class="mono">${money(a.typical)}</span></div>`; } });
+  const total=works+addTotal, lo=wLo+addTotal, hi=wHi+addTotal;
+  body.innerHTML=`
+    <div class="big">${money(total)}</div>
+    <div class="band">likely range ${money(lo)} to ${money(hi)}</div>
+    <div class="breakdown">
+      <div><span>${c.category}, base works</span><span class="mono">${money(c.base)}</span></div>
+      ${condLines}
+      <div class="sub"><span>works subtotal</span><span class="mono">${money(works)}</span></div>
+      ${addLines}
+      <div class="gst"><span>total with GST</span><span class="mono">${money(total*1.1)}</span></div>
+    </div>
+    <div class="ctx">Base works for this type, adjusted for the characteristics ticked, with the standard add ons stacked on top.</div>
+    <span class="tag">${c.n.toLocaleString()} jobs on record</span>`;
+}
+
+const RM=DATA.reline_model;
+function renderReline(){
+  const m=+$('#metreSlider').value; $('#metreNum').textContent=m;
+  $('#relineOut').textContent=money(RM.setup+RM.per_metre*m);
+  $('#relineFormula').textContent=`${money(RM.setup)} set up + ${money(RM.per_metre)} per metre x ${m} m`;
+}
+$('#metreSlider').oninput=renderReline;
+const relC=DATA.quoted.find(q=>q.category==='Pipe relining');
+$('#rel-n').textContent=RM.n; $('#rel-r2').textContent=Math.round(RM.r2*100)+'%';
+$('#rel-med').textContent=money(relC.median); $('#rel-band').textContent=money(relC.p25)+' and '+money(relC.p75);
+
+$('#wlBody').innerHTML=DATA.winloss.map(w=>`<tr><td>${w.category}<div class="winbar"><span style="width:${w.win_rate}%"></span></div></td>
+    <td class="num">${w.approved}</td><td class="num">${w.rejected}</td><td class="num">${w.pending}</td><td class="num">${w.win_rate}%</td></tr>`).join('');
+$('#o-win').textContent=DATA.overall_winrate+'%';
+$('#o-rej').textContent=DATA.status_counts.Rejected;
+$('#o-pend').textContent=(DATA.status_counts['Pending Approval']+DATA.status_counts['In Progress']).toLocaleString();
+
+renderCats(); renderConditions(); renderAddons(); renderReadout(); renderReline();
+</script>
+</body>
+</html>

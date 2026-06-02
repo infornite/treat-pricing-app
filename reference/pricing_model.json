@@ -1,0 +1,529 @@
+{
+  "window": "Jan 2023 to Jun 2026",
+  "counts": {
+    "completed_jobs": 7026,
+    "reactive_jobs": 4913,
+    "won_quoted_jobs": 2113,
+    "distinct_quotes": 4005,
+    "approved_quotes": 1950
+  },
+  "split_pct": {
+    "reactive": 69.9,
+    "quoted": 30.1
+  },
+  "reactive": [
+    {
+      "category": "Tap / fixture repair",
+      "n": 1012,
+      "median": 450,
+      "confidence": "high",
+      "base": 431,
+      "band_lo": 0.67,
+      "band_hi": 1.367,
+      "conditions": [
+        {
+          "key": "access",
+          "label": "Difficult access",
+          "help": "Roof, riser, ceiling cavity, confined space or height work.",
+          "factor": 1.663,
+          "pct": 66
+        },
+        {
+          "key": "excavation",
+          "label": "Excavation or breaking concrete",
+          "help": "Digging, jackhammering, cutting out, chasing walls or core drilling.",
+          "factor": 1.398,
+          "pct": 40
+        },
+        {
+          "key": "after_hours",
+          "label": "After hours / emergency",
+          "help": "Out of hours attendance. This is the works premium only. The fixed callout fee is a separate add on.",
+          "factor": 1.227,
+          "pct": 23
+        }
+      ],
+      "default_addons": [],
+      "common_addons": []
+    },
+    {
+      "category": "Hot water / TMV",
+      "n": 865,
+      "median": 660,
+      "confidence": "high",
+      "base": 543,
+      "band_lo": 0.645,
+      "band_hi": 1.483,
+      "conditions": [
+        {
+          "key": "excavation",
+          "label": "Excavation or breaking concrete",
+          "help": "Digging, jackhammering, cutting out, chasing walls or core drilling.",
+          "factor": 1.787,
+          "pct": 79
+        },
+        {
+          "key": "access",
+          "label": "Difficult access",
+          "help": "Roof, riser, ceiling cavity, confined space or height work.",
+          "factor": 1.344,
+          "pct": 34
+        },
+        {
+          "key": "after_hours",
+          "label": "After hours / emergency",
+          "help": "Out of hours attendance. This is the works premium only. The fixed callout fee is a separate add on.",
+          "factor": 1.28,
+          "pct": 28
+        }
+      ],
+      "default_addons": [],
+      "common_addons": []
+    },
+    {
+      "category": "Drain clear (jet/hydro)",
+      "n": 801,
+      "median": 860,
+      "confidence": "high",
+      "base": 789,
+      "band_lo": 0.725,
+      "band_hi": 1.33,
+      "conditions": [
+        {
+          "key": "multi_unit",
+          "label": "Multiple units affected",
+          "help": "Work spanning two or more units or tenancies.",
+          "factor": 1.474,
+          "pct": 47
+        },
+        {
+          "key": "excavation",
+          "label": "Excavation or breaking concrete",
+          "help": "Digging, jackhammering, cutting out, chasing walls or core drilling.",
+          "factor": 1.363,
+          "pct": 36
+        },
+        {
+          "key": "after_hours",
+          "label": "After hours / emergency",
+          "help": "Out of hours attendance. This is the works premium only. The fixed callout fee is a separate add on.",
+          "factor": 1.338,
+          "pct": 34
+        },
+        {
+          "key": "replace",
+          "label": "Replacing or installing a unit",
+          "help": "Supplying and fitting new gear rather than repairing what is there.",
+          "factor": 1.249,
+          "pct": 25
+        }
+      ],
+      "default_addons": [
+        "Jet blaster",
+        "Drain camera survey (CCTV)"
+      ],
+      "common_addons": []
+    },
+    {
+      "category": "Burst pipe repair",
+      "n": 595,
+      "median": 740,
+      "confidence": "high",
+      "base": 649,
+      "band_lo": 0.709,
+      "band_hi": 1.315,
+      "conditions": [
+        {
+          "key": "excavation",
+          "label": "Excavation or breaking concrete",
+          "help": "Digging, jackhammering, cutting out, chasing walls or core drilling.",
+          "factor": 1.449,
+          "pct": 45
+        },
+        {
+          "key": "after_hours",
+          "label": "After hours / emergency",
+          "help": "Out of hours attendance. This is the works premium only. The fixed callout fee is a separate add on.",
+          "factor": 1.362,
+          "pct": 36
+        }
+      ],
+      "default_addons": [],
+      "common_addons": []
+    },
+    {
+      "category": "Leak investigation",
+      "n": 530,
+      "median": 530,
+      "confidence": "high",
+      "base": 492,
+      "band_lo": 0.725,
+      "band_hi": 1.289,
+      "conditions": [
+        {
+          "key": "replace",
+          "label": "Replacing or installing a unit",
+          "help": "Supplying and fitting new gear rather than repairing what is there.",
+          "factor": 1.212,
+          "pct": 21
+        },
+        {
+          "key": "excavation",
+          "label": "Excavation or breaking concrete",
+          "help": "Digging, jackhammering, cutting out, chasing walls or core drilling.",
+          "factor": 1.179,
+          "pct": 18
+        },
+        {
+          "key": "access",
+          "label": "Difficult access",
+          "help": "Roof, riser, ceiling cavity, confined space or height work.",
+          "factor": 1.15,
+          "pct": 15
+        }
+      ],
+      "default_addons": [],
+      "common_addons": []
+    },
+    {
+      "category": "Drain clear (electric eel)",
+      "n": 409,
+      "median": 680,
+      "confidence": "high",
+      "base": 672,
+      "band_lo": 0.803,
+      "band_hi": 1.197,
+      "conditions": [
+        {
+          "key": "multi_unit",
+          "label": "Multiple units affected",
+          "help": "Work spanning two or more units or tenancies.",
+          "factor": 1.34,
+          "pct": 34
+        },
+        {
+          "key": "after_hours",
+          "label": "After hours / emergency",
+          "help": "Out of hours attendance. This is the works premium only. The fixed callout fee is a separate add on.",
+          "factor": 1.293,
+          "pct": 29
+        },
+        {
+          "key": "excavation",
+          "label": "Excavation or breaking concrete",
+          "help": "Digging, jackhammering, cutting out, chasing walls or core drilling.",
+          "factor": 1.251,
+          "pct": 25
+        },
+        {
+          "key": "replace",
+          "label": "Replacing or installing a unit",
+          "help": "Supplying and fitting new gear rather than repairing what is there.",
+          "factor": 1.214,
+          "pct": 21
+        }
+      ],
+      "default_addons": [],
+      "common_addons": []
+    },
+    {
+      "category": "Investigation / attendance",
+      "n": 276,
+      "median": 484,
+      "confidence": "high",
+      "base": 502,
+      "band_lo": 0.678,
+      "band_hi": 1.335,
+      "conditions": [
+        {
+          "key": "excavation",
+          "label": "Excavation or breaking concrete",
+          "help": "Digging, jackhammering, cutting out, chasing walls or core drilling.",
+          "factor": 1.172,
+          "pct": 17
+        },
+        {
+          "key": "replace",
+          "label": "Replacing or installing a unit",
+          "help": "Supplying and fitting new gear rather than repairing what is there.",
+          "factor": 1.121,
+          "pct": 12
+        }
+      ],
+      "default_addons": [],
+      "common_addons": []
+    },
+    {
+      "category": "Blockage clear (general)",
+      "n": 238,
+      "median": 640,
+      "confidence": "high",
+      "base": 646,
+      "band_lo": 0.704,
+      "band_hi": 1.431,
+      "conditions": [
+        {
+          "key": "excavation",
+          "label": "Excavation or breaking concrete",
+          "help": "Digging, jackhammering, cutting out, chasing walls or core drilling.",
+          "factor": 1.189,
+          "pct": 19
+        },
+        {
+          "key": "access",
+          "label": "Difficult access",
+          "help": "Roof, riser, ceiling cavity, confined space or height work.",
+          "factor": 1.142,
+          "pct": 14
+        }
+      ],
+      "default_addons": [],
+      "common_addons": []
+    },
+    {
+      "category": "Leak repair",
+      "n": 115,
+      "median": 520,
+      "confidence": "high",
+      "base": 457,
+      "band_lo": 0.665,
+      "band_hi": 1.27,
+      "conditions": [
+        {
+          "key": "after_hours",
+          "label": "After hours / emergency",
+          "help": "Out of hours attendance. This is the works premium only. The fixed callout fee is a separate add on.",
+          "factor": 1.406,
+          "pct": 41
+        },
+        {
+          "key": "access",
+          "label": "Difficult access",
+          "help": "Roof, riser, ceiling cavity, confined space or height work.",
+          "factor": 1.318,
+          "pct": 32
+        }
+      ],
+      "default_addons": [],
+      "common_addons": []
+    },
+    {
+      "category": "Other reactive",
+      "n": 35,
+      "median": 620,
+      "confidence": "medium",
+      "base": 620,
+      "band_lo": 0.774,
+      "band_hi": 3.357,
+      "conditions": [],
+      "default_addons": [],
+      "common_addons": []
+    },
+    {
+      "category": "Backflow / TMV",
+      "n": 24,
+      "median": 680,
+      "confidence": "medium",
+      "base": 680,
+      "band_lo": 0.647,
+      "band_hi": 1.125,
+      "conditions": [],
+      "default_addons": [],
+      "common_addons": []
+    }
+  ],
+  "quoted": [
+    {
+      "category": "Excavation / pipe replacement",
+      "n": 632,
+      "median": 3840,
+      "p25": 2480,
+      "p75": 5750,
+      "confidence": "high"
+    },
+    {
+      "category": "Remedial / building works",
+      "n": 310,
+      "median": 1940,
+      "p25": 1280,
+      "p75": 2780,
+      "confidence": "high"
+    },
+    {
+      "category": "Stormwater works",
+      "n": 232,
+      "median": 1580,
+      "p25": 1180,
+      "p75": 1980,
+      "confidence": "high"
+    },
+    {
+      "category": "Pipe relining",
+      "n": 195,
+      "median": 6468,
+      "p25": 4540,
+      "p75": 9909,
+      "confidence": "high"
+    },
+    {
+      "category": "Preventative maintenance / clear-out",
+      "n": 162,
+      "median": 1180,
+      "p25": 942,
+      "p75": 1328,
+      "confidence": "high"
+    },
+    {
+      "category": "Other quoted",
+      "n": 149,
+      "median": 1580,
+      "p25": 1040,
+      "p75": 2720,
+      "confidence": "high"
+    },
+    {
+      "category": "Hot water",
+      "n": 56,
+      "median": 2790,
+      "p25": 1448,
+      "p75": 4008,
+      "confidence": "high"
+    },
+    {
+      "category": "Tap / fixture",
+      "n": 44,
+      "median": 1210,
+      "p25": 850,
+      "p75": 1740,
+      "confidence": "high"
+    },
+    {
+      "category": "Pump works",
+      "n": 35,
+      "median": 1450,
+      "p25": 850,
+      "p75": 2565,
+      "confidence": "medium"
+    },
+    {
+      "category": "Backflow / TMV",
+      "n": 20,
+      "median": 1380,
+      "p25": 635,
+      "p75": 2225,
+      "confidence": "medium"
+    }
+  ],
+  "reline_model": {
+    "setup": 4853,
+    "per_metre": 546,
+    "n": 149,
+    "r2": 0.43
+  },
+  "addons": [
+    {
+      "name": "Emergency after-hours callout",
+      "typical": 380,
+      "n": 469
+    },
+    {
+      "name": "Jet blaster",
+      "typical": 300,
+      "n": 809
+    },
+    {
+      "name": "Drain camera survey (CCTV)",
+      "typical": 250,
+      "n": 787
+    },
+    {
+      "name": "Electric eel",
+      "typical": 200,
+      "n": 50
+    },
+    {
+      "name": "Pipe location / leak detection",
+      "typical": 550,
+      "n": 88
+    }
+  ],
+  "winloss": [
+    {
+      "category": "Excavation / pipe replacement",
+      "approved": 663,
+      "rejected": 52,
+      "pending": 508,
+      "win_rate": 54.2
+    },
+    {
+      "category": "Remedial / building works",
+      "approved": 329,
+      "rejected": 27,
+      "pending": 440,
+      "win_rate": 41.3
+    },
+    {
+      "category": "Pipe relining",
+      "approved": 211,
+      "rejected": 10,
+      "pending": 270,
+      "win_rate": 43.0
+    },
+    {
+      "category": "Stormwater works",
+      "approved": 246,
+      "rejected": 15,
+      "pending": 208,
+      "win_rate": 52.5
+    },
+    {
+      "category": "Preventative maintenance / clear-out",
+      "approved": 169,
+      "rejected": 21,
+      "pending": 147,
+      "win_rate": 50.1
+    },
+    {
+      "category": "Other quoted",
+      "approved": 165,
+      "rejected": 15,
+      "pending": 154,
+      "win_rate": 49.4
+    },
+    {
+      "category": "Hot water",
+      "approved": 61,
+      "rejected": 8,
+      "pending": 64,
+      "win_rate": 45.9
+    },
+    {
+      "category": "Tap / fixture",
+      "approved": 51,
+      "rejected": 4,
+      "pending": 57,
+      "win_rate": 45.5
+    },
+    {
+      "category": "Pump works",
+      "approved": 35,
+      "rejected": 1,
+      "pending": 28,
+      "win_rate": 54.7
+    },
+    {
+      "category": "Backflow / TMV",
+      "approved": 20,
+      "rejected": 3,
+      "pending": 22,
+      "win_rate": 44.4
+    }
+  ],
+  "status_counts": {
+    "Approved": 1950,
+    "Pending Approval": 1699,
+    "In Progress": 199,
+    "Rejected": 156
+  },
+  "overall_winrate": 48.7
+}

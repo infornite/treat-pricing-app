@@ -1,0 +1,416 @@
+{
+  "window": "Jan 2023 to Jun 2026 (recency weighted, half life 550 days)",
+  "classified_counts": {
+    "jobs": 1845,
+    "quotes": 45
+  },
+  "reactive": [
+    {
+      "category": "Drainage/sewer",
+      "n": 614,
+      "median": 640,
+      "confidence": "high",
+      "base": 490,
+      "band_lo": 0.77,
+      "band_hi": 1.264,
+      "conditions": [
+        {
+          "key": "excavation",
+          "label": "Excavation / breaking concrete",
+          "factor": 1.748,
+          "pct": 75
+        },
+        {
+          "key": "return_visit_or_staged",
+          "label": "Return or staged visits",
+          "factor": 1.668,
+          "pct": 67
+        },
+        {
+          "key": "difficult_access",
+          "label": "Difficult access",
+          "factor": 1.313,
+          "pct": 31
+        },
+        {
+          "key": "multiple_items",
+          "label": "Multiple items in one visit",
+          "factor": 1.273,
+          "pct": 27
+        },
+        {
+          "key": "after_hours",
+          "label": "After hours / emergency",
+          "factor": 1.316,
+          "pct": 32
+        },
+        {
+          "key": "specialist_equipment",
+          "label": "Specialist equipment",
+          "factor": 1.272,
+          "pct": 27
+        }
+      ],
+      "default_addons": [],
+      "common_addons": []
+    },
+    {
+      "category": "Water supply/pipe",
+      "n": 338,
+      "median": 580,
+      "confidence": "high",
+      "base": 447,
+      "band_lo": 0.708,
+      "band_hi": 1.321,
+      "conditions": [
+        {
+          "key": "excavation",
+          "label": "Excavation / breaking concrete",
+          "factor": 1.733,
+          "pct": 73
+        },
+        {
+          "key": "concealed_or_in_slab",
+          "label": "Concealed / in slab",
+          "factor": 1.649,
+          "pct": 65
+        },
+        {
+          "key": "return_visit_or_staged",
+          "label": "Return or staged visits",
+          "factor": 1.584,
+          "pct": 58
+        },
+        {
+          "key": "multiple_items",
+          "label": "Multiple items in one visit",
+          "factor": 1.478,
+          "pct": 48
+        },
+        {
+          "key": "specialist_equipment",
+          "label": "Specialist equipment",
+          "factor": 1.412,
+          "pct": 41
+        },
+        {
+          "key": "reinstatement",
+          "label": "Reinstatement (tile/render/paint/waterproof)",
+          "factor": 1.506,
+          "pct": 51
+        }
+      ],
+      "default_addons": [],
+      "common_addons": []
+    },
+    {
+      "category": "Fixture/tapware",
+      "n": 266,
+      "median": 420,
+      "confidence": "high",
+      "base": 345,
+      "band_lo": 0.696,
+      "band_hi": 1.315,
+      "conditions": [
+        {
+          "key": "multiple_items",
+          "label": "Multiple items in one visit",
+          "factor": 1.793,
+          "pct": 79
+        },
+        {
+          "key": "return_visit_or_staged",
+          "label": "Return or staged visits",
+          "factor": 1.472,
+          "pct": 47
+        },
+        {
+          "key": "difficult_access",
+          "label": "Difficult access",
+          "factor": 1.51,
+          "pct": 51
+        },
+        {
+          "key": "multi_unit",
+          "label": "Multiple units",
+          "factor": 1.269,
+          "pct": 27
+        },
+        {
+          "key": "diagnose_only",
+          "label": "Diagnosis only (no repair done)",
+          "factor": 1.188,
+          "pct": 19
+        }
+      ],
+      "default_addons": [],
+      "common_addons": []
+    },
+    {
+      "category": "Hot water",
+      "n": 197,
+      "median": 680,
+      "confidence": "high",
+      "base": 490,
+      "band_lo": 0.715,
+      "band_hi": 1.265,
+      "conditions": [
+        {
+          "key": "return_visit_or_staged",
+          "label": "Return or staged visits",
+          "factor": 1.595,
+          "pct": 59
+        },
+        {
+          "key": "specialist_equipment",
+          "label": "Specialist equipment",
+          "factor": 1.571,
+          "pct": 57
+        },
+        {
+          "key": "building_shutdown",
+          "label": "Building shutdown",
+          "factor": 1.527,
+          "pct": 53
+        },
+        {
+          "key": "concealed_or_in_slab",
+          "label": "Concealed / in slab",
+          "factor": 1.519,
+          "pct": 52
+        },
+        {
+          "key": "diagnose_only",
+          "label": "Diagnosis only (no repair done)",
+          "factor": 0.799,
+          "pct": -20
+        },
+        {
+          "key": "after_hours",
+          "label": "After hours / emergency",
+          "factor": 1.145,
+          "pct": 15
+        }
+      ],
+      "default_addons": [],
+      "common_addons": []
+    },
+    {
+      "category": "Stormwater",
+      "n": 167,
+      "median": 740,
+      "confidence": "high",
+      "base": 515,
+      "band_lo": 0.714,
+      "band_hi": 1.36,
+      "conditions": [
+        {
+          "key": "return_visit_or_staged",
+          "label": "Return or staged visits",
+          "factor": 1.966,
+          "pct": 97
+        },
+        {
+          "key": "multiple_items",
+          "label": "Multiple items in one visit",
+          "factor": 1.333,
+          "pct": 33
+        },
+        {
+          "key": "specialist_equipment",
+          "label": "Specialist equipment",
+          "factor": 1.334,
+          "pct": 33
+        },
+        {
+          "key": "difficult_access",
+          "label": "Difficult access",
+          "factor": 1.286,
+          "pct": 29
+        },
+        {
+          "key": "concealed_or_in_slab",
+          "label": "Concealed / in slab",
+          "factor": 1.219,
+          "pct": 22
+        },
+        {
+          "key": "tree_roots",
+          "label": "Tree roots",
+          "factor": 1.223,
+          "pct": 22
+        }
+      ],
+      "default_addons": [],
+      "common_addons": []
+    },
+    {
+      "category": "Roof/waterproofing",
+      "n": 165,
+      "median": 580,
+      "confidence": "high",
+      "base": 683,
+      "band_lo": 0.741,
+      "band_hi": 1.242,
+      "conditions": [
+        {
+          "key": "return_visit_or_staged",
+          "label": "Return or staged visits",
+          "factor": 1.579,
+          "pct": 58
+        },
+        {
+          "key": "specialist_equipment",
+          "label": "Specialist equipment",
+          "factor": 1.477,
+          "pct": 48
+        },
+        {
+          "key": "diagnose_only",
+          "label": "Diagnosis only (no repair done)",
+          "factor": 0.731,
+          "pct": -27
+        },
+        {
+          "key": "difficult_access",
+          "label": "Difficult access",
+          "factor": 1.136,
+          "pct": 14
+        }
+      ],
+      "default_addons": [],
+      "common_addons": []
+    },
+    {
+      "category": "Backflow/TMV",
+      "n": 40,
+      "median": 520,
+      "confidence": "high",
+      "base": 520,
+      "band_lo": 0.769,
+      "band_hi": 1.237,
+      "conditions": [],
+      "default_addons": [],
+      "common_addons": []
+    },
+    {
+      "category": "Other",
+      "n": 28,
+      "median": 580,
+      "confidence": "medium",
+      "base": 580,
+      "band_lo": 0.724,
+      "band_hi": 2.087,
+      "conditions": [],
+      "default_addons": [],
+      "common_addons": []
+    },
+    {
+      "category": "Gas",
+      "n": 26,
+      "median": 500,
+      "confidence": "medium",
+      "base": 500,
+      "band_lo": 0.818,
+      "band_hi": 2.554,
+      "conditions": [],
+      "default_addons": [],
+      "common_addons": []
+    }
+  ],
+  "quoted": [],
+  "reline_model": null,
+  "addons": [
+    {
+      "name": "Emergency after-hours callout",
+      "typical": 380,
+      "n": 469
+    },
+    {
+      "name": "Jet blaster",
+      "typical": 300,
+      "n": 809
+    },
+    {
+      "name": "Drain camera survey (CCTV)",
+      "typical": 250,
+      "n": 787
+    },
+    {
+      "name": "Electric eel",
+      "typical": 200,
+      "n": 50
+    },
+    {
+      "name": "Pipe location / leak detection",
+      "typical": 550,
+      "n": 88
+    }
+  ],
+  "winloss": [
+    {
+      "category": "Unclassified",
+      "approved": 1940,
+      "rejected": 155,
+      "pending": 1864,
+      "win_rate": 49.0
+    },
+    {
+      "category": "Drainage/sewer",
+      "approved": 5,
+      "rejected": 0,
+      "pending": 9,
+      "win_rate": 35.7
+    },
+    {
+      "category": "Stormwater",
+      "approved": 0,
+      "rejected": 0,
+      "pending": 12,
+      "win_rate": 0.0
+    },
+    {
+      "category": "Other",
+      "approved": 2,
+      "rejected": 1,
+      "pending": 5,
+      "win_rate": 25.0
+    },
+    {
+      "category": "Backflow/TMV",
+      "approved": 1,
+      "rejected": 0,
+      "pending": 2,
+      "win_rate": 33.3
+    },
+    {
+      "category": "Fixture/tapware",
+      "approved": 0,
+      "rejected": 0,
+      "pending": 3,
+      "win_rate": 0.0
+    },
+    {
+      "category": "Roof/waterproofing",
+      "approved": 1,
+      "rejected": 0,
+      "pending": 2,
+      "win_rate": 33.3
+    },
+    {
+      "category": "Hot water",
+      "approved": 1,
+      "rejected": 0,
+      "pending": 1,
+      "win_rate": 50.0
+    }
+  ],
+  "status_counts": {
+    "Approved": 1950,
+    "Pending Approval": 1699,
+    "In Progress": 199,
+    "Rejected": 156
+  },
+  "overall_winrate": 48.7,
+  "note": "Built from comprehension classification. Job type = primary_system. diagnose_only is the downward lever. Base figures recency weighted."
+}
