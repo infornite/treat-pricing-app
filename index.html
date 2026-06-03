@@ -313,6 +313,13 @@ body{
 /* Estimate-leads bottom panel */
 .pc-est-big{font-size:26px;font-weight:700;letter-spacing:-.5px;line-height:1.15;color:var(--text)}
 
+/* Bottom panel action buttons */
+.pc-actions{display:flex;gap:8px;padding:10px 0 2px;border-top:1px solid var(--border);margin-top:6px}
+.btn-share{flex:1;padding:11px 8px;background:var(--pri);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.btn-share:active{opacity:.85}
+.btn-clear{padding:11px 14px;background:var(--bg);color:var(--text2);border:1px solid var(--border);border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;white-space:nowrap}
+.btn-clear:active{background:var(--border)}
+
 .scroll-pad{height:20px}
 </style>
 </head>
@@ -558,6 +565,82 @@ const ICO={
 };
 
 /* ═══════════════════════════════════════════
+   SHARE / COPY
+   ═══════════════════════════════════════════ */
+function buildShareTextR(){
+  const calcs=S.r.comps.map(calcRComp);
+  const total=calcs.reduce((s,c)=>s+c.tot,0);
+  const totalLo=calcs.reduce((s,c)=>s+c.totLo,0);
+  const totalHi=calcs.reduce((s,c)=>s+c.totHi,0);
+  let lines=["Treat Plumbing — Job Estimate (DRAFT)",""];
+  S.r.comps.forEach((comp,i)=>{
+    const c=calcs[i];
+    const sys=M.reactive[comp.si];
+    const act=ACTIONS.find(a=>a.k===comp.act);
+    lines.push(`Item ${i+1}: ${SYS_SHORT[sys.sys]||sys.sys}${act?" – "+act.l:""}`);
+    const chars=c.factors.filter(f=>f.k!=="diagnosis_only").map(f=>f.lbl);
+    const addons=c.addons.map(a=>a.name);
+    const all=[...chars,...addons];
+    if(all.length) lines.push("  "+all.join(", "));
+    lines.push(`  Estimate: ${fmt(c.tot)}   Range: ${rng(c.totLo,c.totHi)}`);
+    if(comp.asbestos) lines.push("  ⚠ Asbestos risk noted");
+    lines.push("");
+  });
+  if(S.r.comps.length>1) lines.push(`TOTAL: ${fmt(total)}   Range: ${rng(totalLo,totalHi)}`,"");
+  lines.push("Based on historical invoiced data, Jan 2023–Jun 2026.","DRAFT – confirm with Peter before sending to client.");
+  return lines.join("\n");
+}
+
+function buildShareTextQ(){
+  let total=0;
+  let mgLines=[];
+  let lines=["Treat Plumbing — Quote Estimate (DRAFT)",""];
+  S.q.comps.forEach((comp,i)=>{
+    const isMG=comp.wt==="Making good (remedial finishes)";
+    const isOther=comp.wt==="Other";
+    const manualAmt=comp.price&&parseFloat(comp.price)>0?parseFloat(comp.price):null;
+    lines.push(`${i+1}. ${comp.wt}`);
+    if(isMG){
+      const v=manualAmt?fmt(manualAmt):"amount TBC";
+      lines.push(`   Subcontracted pass-through: ${v}`);
+      if(manualAmt) mgLines.push(`Making good (subcontracted): ${fmt(manualAmt)}`);
+    } else if(isOther){
+      if(manualAmt){total+=manualAmt;lines.push(`   Manual price: ${fmt(manualAmt)}`);}
+      else lines.push("   No price entered");
+    } else {
+      const calc=calcComp(comp);
+      if(calc){
+        total+=calc.est;
+        const chars=[...comp.chars].map(k=>{const c=calc.wt.conds.find(x=>x.k===k);return c?c.lbl:k;});
+        if(chars.length) lines.push("   "+chars.join(", "));
+        lines.push(`   Estimate: ${fmt(calc.est)}   Range: ${rng(calc.lo,calc.hi)}   (${calc.wt.n.toLocaleString()} jobs)`);
+        if(comp.wt==="Sewer relining"&&comp.m) lines.push("   ⚠ Length-based estimate – low confidence");
+      }
+    }
+    lines.push("");
+  });
+  lines.push(`PLUMBING TOTAL: ${fmt(total)}`);
+  if(mgLines.length){lines.push("");mgLines.forEach(l=>lines.push(l));}
+  lines.push("","Based on historical invoiced data, Jan 2023–Jun 2026.","DRAFT – confirm with Peter before sending to client.");
+  return lines.join("\n");
+}
+
+function doShare(text){
+  if(navigator.share){
+    navigator.share({text}).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(text).then(()=>{
+      // brief toast
+      const t=document.createElement("div");
+      t.textContent="Copied to clipboard";
+      t.style.cssText="position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 18px;border-radius:20px;font-size:14px;font-weight:500;z-index:200;pointer-events:none";
+      document.body.appendChild(t);
+      setTimeout(()=>t.remove(),2000);
+    }).catch(()=>{});
+  }
+}
+
+/* ═══════════════════════════════════════════
    CALC — REACTIVE COMPONENT
    ═══════════════════════════════════════════ */
 function calcRComp(comp){
@@ -733,8 +816,14 @@ function renderP(){
     h+=`<div class="pc-footnote">Weighted jobs Jan 2023 to Jun 2026. Range covers the middle band of actual invoiced prices. Guide for staff only, not a binding quote.</div>`;
     h+="</div>";
   }
+  h+=`<div class="pc-actions">
+    <button class="btn-share" id="r-share">Share / Copy estimate</button>
+    <button class="btn-clear" id="r-clear">Clear</button>
+  </div>`;
   p.innerHTML=h;
   $("ptog")?.addEventListener("click",()=>{S.rpx=!S.rpx;renderP();});
+  $("r-share")?.addEventListener("click",()=>doShare(buildShareTextR()));
+  $("r-clear")?.addEventListener("click",()=>{S.r.comps=[];S.r.nid=1;S.rpx=false;renderR();renderP();});
 }
 
 /* ═══════════════════════════════════════════
@@ -907,8 +996,14 @@ function renderQP(){
     h+=`<div class="pc-footnote">Weighted jobs Jan 2023 to Jun 2026. Range covers the middle band of actual invoiced prices. Guide for staff only, not a binding quote.</div>`;
     h+="</div>";
   }
+  h+=`<div class="pc-actions">
+    <button class="btn-share" id="q-share">Share / Copy estimate</button>
+    <button class="btn-clear" id="q-clear">Clear</button>
+  </div>`;
   p.innerHTML=h;
   $("qptog")?.addEventListener("click",()=>{S.qpx=!S.qpx;renderQP();});
+  $("q-share")?.addEventListener("click",()=>doShare(buildShareTextQ()));
+  $("q-clear")?.addEventListener("click",()=>{S.q.comps=[];S.q.nid=1;S.qpx=false;renderQ();renderQP();});
 }
 
 /* ═══════════════════════════════════════════
