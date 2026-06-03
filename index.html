@@ -492,7 +492,7 @@ const S = {
     chars:new Set(), addons:new Set(), asbestos:false
   },
   qmo:{                    // quoted modal state
-    eid:null, wt:null, m:"", chars:new Set()
+    eid:null, wt:null, m:"", chars:new Set(), price:""
   },
   mt:null,   // active modal type: "r" | "q"
   rpx:false, // reactive bottom panel expanded
@@ -531,6 +531,20 @@ const WTS=[
   "Preventative maintenance","Gas","Compliance certification",
   "Making good (remedial finishes)","Other"
 ];
+
+const QWT_SHORT={
+  "Sewer relining":                   "Sewer relining",
+  "Sewer excavation and replacement":  "Sewer excavation",
+  "Stormwater works":                  "Stormwater",
+  "Water supply works":                "Water supply",
+  "Hot water plant":                   "Hot water plant",
+  "Shower and wet area waterproofing": "Shower waterproof.",
+  "Preventative maintenance":          "Preventative maint.",
+  "Gas":                               "Gas",
+  "Compliance certification":          "Compliance",
+  "Making good (remedial finishes)":   "Making good",
+  "Other":                             "Other"
+};
 
 /* SVGs */
 const ICO={
@@ -746,20 +760,27 @@ function renderQ(){
       const isOther=comp.wt==="Other";
       const wtData=M.quoted.find(d=>d.wt===comp.wt);
       const isMed=wtData?.conf==="medium";
+      const manualPrice=comp.price&&parseFloat(comp.price)>0?parseFloat(comp.price):null;
       let priceH="";
       if(isMG){
-        priceH=`<div class="comp-sub-notice">Subcontracted &mdash; get a separate trade quote.</div>`;
-      } else if(isOther||!calc){
-        priceH=`<div style="color:var(--mute);font-size:14px;margin-top:8px">No model data &mdash; price manually</div>`;
+        priceH=manualPrice
+          ?`<div class="c-est" style="font-size:18px">${fmt(manualPrice)}</div><div class="c-range">Subcontracted pass-through</div>`
+          :`<div class="comp-sub-notice">Subcontracted &mdash; edit to enter the trade quote amount.</div>`;
+      } else if(isOther){
+        priceH=manualPrice
+          ?`<div class="c-est">${fmt(manualPrice)}</div><div class="c-range">Manual price</div>`
+          :`<div style="color:var(--mute);font-size:14px;margin-top:8px">No price entered &mdash; edit to add one</div>`;
+      } else if(!calc){
+        priceH=`<div style="color:var(--mute);font-size:14px;margin-top:8px">No model data</div>`;
       } else {
         const confH=isMed?`<span class="cbadge med">Medium confidence</span>`:"";
         if(calc.useReline){
           priceH=`<div class="c-est">${rng(calc.lo,calc.hi)}${confH}</div>
-            <div class="c-range">length estimate around ${fmt(calc.est)}</div>
+            <div class="c-range">length estimate around ${fmt(calc.est)} &middot; ${calc.wt.n.toLocaleString()} jobs</div>
             <div class="comp-price-warn">${ICO.warn()} Low confidence &mdash; length explains only 20% of relining price variation.</div>`;
         } else {
           priceH=`<div class="c-est">${fmt(calc.est)}${confH}</div>
-            <div class="c-range">${rng(calc.lo,calc.hi)}</div>`;
+            <div class="c-range">${rng(calc.lo,calc.hi)} &middot; ${calc.wt.n.toLocaleString()} jobs</div>`;
         }
       }
       let chips="";
@@ -806,44 +827,84 @@ function renderQP(){
     return;
   }
   let total=0;
-  const notes=[],rows=[];
-  let hasMG=false,hasOther=false,hasReline=false;
-  q.comps.forEach((comp,i)=>{
+  const notes=[],plumbRows=[],mgRows=[];
+  let hasReline=false;
+  q.comps.forEach(comp=>{
+    const manualAmt=comp.price&&parseFloat(comp.price)>0?parseFloat(comp.price):null;
     if(comp.wt==="Making good (remedial finishes)"){
-      hasMG=true;
-      rows.push({lbl:"Making good",val:"Subcontracted",muted:true});
+      mgRows.push({lbl:"Making good (subcontracted)",val:manualAmt?fmt(manualAmt):"Enter amount in edit",muted:!manualAmt});
     } else if(comp.wt==="Other"){
-      hasOther=true;
-      rows.push({lbl:comp.wt,val:"Manual",muted:true});
+      if(manualAmt){total+=manualAmt;plumbRows.push({lbl:"Other",val:fmt(manualAmt),muted:false});}
+      else{notes.push("Other: no price entered");}
     } else {
       const c=calcComp(comp);
       if(c){
         total+=c.est;
-        rows.push({lbl:comp.wt,val:fmt(c.est),muted:false});
+        plumbRows.push({lbl:comp.wt,val:fmt(c.est),muted:false});
         if(comp.wt==="Sewer relining"&&comp.m) hasReline=true;
       }
     }
   });
-  if(hasMG)     notes.push("Excl. making good");
-  if(hasOther)  notes.push("Excl. unpriced items");
   if(hasReline) notes.push("Relining est. low confidence");
 
   let h=`<div class="pc-header" id="qptog">
     <div class="pc-main">
       <div class="pc-est-big">${fmt(total)}</div>
       ${notes.length?`<div class="pc-mid" style="color:var(--amber)">*${notes.join(" · ")}</div>`:""}
+      ${mgRows.length?`<div class="pc-mid" style="color:var(--mute)">Making good shown separately below</div>`:""}
     </div>
     <div class="pc-chev${S.qpx?" up":""}">${ICO.chev()}</div>
   </div>`;
 
   if(S.qpx){
     h+='<div class="pc-body">';
-    rows.forEach(r=>{
-      h+=`<div class="pc-row"><span class="pc-lbl${r.muted?" style=\"color:var(--mute)\"":""}">${r.lbl}</span><span class="pc-val${r.muted?" style=\"color:var(--mute)\"":""}">${r.val}</span></div>`;
+    // Per-component detailed breakdown
+    q.comps.forEach((comp,idx)=>{
+      const manualAmt=comp.price&&parseFloat(comp.price)>0?parseFloat(comp.price):null;
+      const isMG=comp.wt==="Making good (remedial finishes)";
+      const isOther=comp.wt==="Other";
+      const calc=(!isMG&&!isOther)?calcComp(comp):null;
+      const label=QWT_SHORT[comp.wt]||comp.wt;
+
+      h+=`<div class="pc-section" style="margin-top:${idx>0?8:0}px">${label}</div>`;
+
+      if(isMG){
+        h+=`<div class="pc-row"><span class="pc-lbl" style="color:var(--mute)">Subcontracted pass-through</span><span class="pc-val" style="color:var(--mute)">${manualAmt?fmt(manualAmt):"No amount entered"}</span></div>`;
+      } else if(isOther){
+        h+=`<div class="pc-row"><span class="pc-lbl" style="color:var(--mute)">Manual price</span><span class="pc-val" style="color:var(--mute)">${manualAmt?fmt(manualAmt):"No amount entered"}</span></div>`;
+      } else if(calc){
+        const wt=calc.wt;
+        if(calc.useReline){
+          h+=`<div class="pc-row"><span class="pc-lbl">Length model (${comp.m}m)</span><span class="pc-val">${fmt(calc.est)}</span></div>`;
+          h+=`<div class="pc-row"><span class="pc-lbl" style="font-size:12px;color:var(--mute)">Low confidence &middot; R²=0.20</span></div>`;
+        } else {
+          h+=`<div class="pc-row"><span class="pc-lbl">Base ${label}</span><span class="pc-val">${fmt(wt.base)}</span></div>`;
+          calc.factors.forEach(f=>{
+            const pct=Math.round((f.f-1)*100);
+            const sign=pct>=0?"+":"";
+            const cls=pct>=0?"up":"dn";
+            h+=`<div class="pc-row"><span class="pc-lbl">${f.lbl}</span><span class="pc-val ${cls}">${sign}${pct}%</span></div>`;
+          });
+        }
+        h+=`<div class="pc-row" style="border-top:1px solid var(--border);margin-top:2px;padding-top:6px">
+          <span class="pc-lbl" style="font-weight:600">Estimate</span>
+          <span class="pc-val" style="font-weight:700">${fmt(calc.est)}</span>
+        </div>`;
+        h+=`<div class="pc-row" style="padding-top:1px"><span class="pc-lbl" style="font-size:12px;color:var(--mute)">Range</span><span class="pc-val" style="font-size:12px;color:var(--mute)">${rng(calc.lo,calc.hi)} &middot; ${wt.n.toLocaleString()} jobs</span></div>`;
+      }
     });
-    if(rows.length>1){
-      h+=`<div class="pc-row divider"><span class="pc-lbl" style="font-weight:600">Total (priced work)</span><span class="pc-val" style="font-weight:700">${fmt(total)}</span></div>`;
+
+    // Grand total line
+    if(q.comps.filter(c=>c.wt!=="Making good (remedial finishes)").length>1){
+      h+=`<div class="pc-total" style="margin-top:10px"><span class="pc-total-lbl">Plumbing total</span><span class="pc-total-val">${fmt(total)}</span></div>`;
     }
+    if(mgRows.length){
+      h+=`<div class="pc-section" style="margin-top:8px">Subcontracted (separate from total)</div>`;
+      mgRows.forEach(r=>{
+        h+=`<div class="pc-row"><span class="pc-lbl" style="${r.muted?"color:var(--mute)":""}">${r.lbl}</span><span class="pc-val" style="${r.muted?"color:var(--mute)":""}">${r.val}</span></div>`;
+      });
+    }
+    h+=`<div class="pc-footnote">Weighted jobs Jan 2023 to Jun 2026. Range covers the middle band of actual invoiced prices. Guide for staff only, not a binding quote.</div>`;
     h+="</div>";
   }
   p.innerHTML=h;
@@ -868,9 +929,9 @@ function openModal(type,comp){
   } else {
     const mo=S.qmo;
     if(comp){
-      mo.eid=comp.id;mo.wt=comp.wt;mo.m=comp.m||"";mo.chars=new Set(comp.chars);
+      mo.eid=comp.id;mo.wt=comp.wt;mo.m=comp.m||"";mo.chars=new Set(comp.chars);mo.price=comp.price||"";
     } else {
-      mo.eid=null;mo.wt=null;mo.m="";mo.chars=new Set();
+      mo.eid=null;mo.wt=null;mo.m="";mo.chars=new Set();mo.price="";
     }
     $("m-title").textContent=comp?"Edit component":"Add component";
   }
@@ -995,17 +1056,20 @@ function renderQMo(){
   const wtData=mo.wt?M.quoted.find(d=>d.wt===mo.wt):null;
   let h="";
 
-  h+='<p class="slabel" style="margin-top:0">Work type</p><div class="rlist">';
+  /* Grid picker — mirrors reactive system grid */
+  h+='<p class="slabel" style="margin-top:0">Work type</p><div class="sys-grid">';
   WTS.forEach(t=>{
     const sel=mo.wt===t?"sel":"";
     const d=M.quoted.find(q=>q.wt===t);
-    let badge="";
-    if(d?.conf==="medium") badge='<span class="cbadge med">Medium confidence</span>';
-    if(t==="Making good (remedial finishes)") badge='<span class="cbadge sub">Subcontracted</span>';
-    h+=`<div class="rrow ${sel}" data-a="q-type" data-t="${t}">
-      <div class="rind"><div class="rdot"></div></div>
-      <div class="tcontent"><span class="rlabel">${t}</span>${badge}</div>
-    </div>`;
+    let sub="";
+    if(d?.conf==="medium") sub=`${d.n} jobs <span style="color:var(--amber);font-weight:600">(med.)</span>`;
+    else if(d?.n) sub=`${d.n.toLocaleString()} jobs`;
+    else if(t==="Making good (remedial finishes)") sub="Subcontracted";
+    else if(t==="Other") sub="Manual price";
+    h+=`<button class="sys-btn ${sel}" data-a="q-type" data-t="${t}">
+      <span class="sys-name">${QWT_SHORT[t]||t}</span>
+      ${sub?`<span class="sys-n">${sub}</span>`:""}
+    </button>`;
   });
   h+="</div>";
 
@@ -1052,7 +1116,20 @@ function renderQMo(){
     }
   }
   if(isMG){
-    h+=`<div class="warn" style="margin-top:16px"><div class="warn-title">Subcontracted pass-through</div><div class="warn-body">Making good is subcontracted. Get a separate trade quote and add it manually.</div></div>`;
+    h+=`<p class="slabel" style="margin-top:20px">Estimated sub-contractor cost (optional)</p>
+      <input type="number" id="m-price" class="text-inp"
+        placeholder="e.g. 1500" value="${mo.price}" inputmode="decimal" min="0">
+      <div class="warn" style="margin-top:10px">
+        <div class="warn-body">Making good is subcontracted. Enter the trade quote amount above and it will show as a separate line below the plumbing total &mdash; clearly labelled, not included in the plumbing price.</div>
+      </div>`;
+  }
+  if(isOther){
+    h+=`<p class="slabel" style="margin-top:20px">Price (manual entry)</p>
+      <input type="number" id="m-price" class="text-inp"
+        placeholder="Enter your estimated amount" value="${mo.price}" inputmode="decimal" min="0">
+      <div class="warn" style="margin-top:10px">
+        <div class="warn-body">No model data for this work type. Enter a price manually and it will be included in the total.</div>
+      </div>`;
   }
   h+='<div class="scroll-pad"></div>';
   $("m-body").innerHTML=h;
@@ -1066,11 +1143,17 @@ function renderQMo(){
     let previewEst=wtData.base;
     wtData.conds.forEach(c=>{if(mo.chars.has(c.k)) previewEst*=c.f;});
     if(useRL) previewEst=M.reline.setup+M.reline.per_m*mVal;
-    const pLo=Math.round((useRL?previewEst:previewEst)*wtData.lo);
-    const pHi=Math.round((useRL?previewEst:previewEst)*wtData.hi);
+    const pLo=Math.round(previewEst*wtData.lo);
+    const pHi=Math.round(previewEst*wtData.hi);
     footH+=`<div style="padding:8px 0 10px;border-bottom:1px solid var(--border);margin-bottom:10px">
       <div style="font-size:20px;font-weight:700;color:var(--text)">${fmt(Math.round(previewEst))}</div>
       <div style="font-size:13px;color:var(--mute)">${rng(pLo,pHi)}${useRL?" &middot; low confidence":""}</div>
+    </div>`;
+  } else if(canSave&&(isMG||isOther)&&mo.price&&parseFloat(mo.price)>0){
+    const label=isMG?"Making good (subcontracted)":"Manual price";
+    footH+=`<div style="padding:8px 0 10px;border-bottom:1px solid var(--border);margin-bottom:10px">
+      <div style="font-size:20px;font-weight:700;color:var(--text)">${fmt(parseFloat(mo.price))}</div>
+      <div style="font-size:13px;color:var(--mute)">${label}</div>
     </div>`;
   }
   footH+=`<button class="btn-pri" id="m-save" ${canSave?"":"disabled"}>${mo.eid!==null?"Update component":"Add component"}</button>`;
@@ -1080,6 +1163,11 @@ function renderQMo(){
   if(mi){
     mi.addEventListener("input",e=>{S.qmo.m=e.target.value;renderQMo();});
     if(document.activeElement!==mi){mi.focus();}
+  }
+  const mpi=$("m-price");
+  if(mpi){
+    mpi.addEventListener("input",e=>{S.qmo.price=e.target.value;renderQMo();});
+    if(document.activeElement!==mpi){mpi.focus();}
   }
 }
 
@@ -1119,7 +1207,7 @@ $("modal").addEventListener("click",e=>{
     else if(a==="r-addon"){const k=el.dataset.k;S.rmo.addons.has(k)?S.rmo.addons.delete(k):S.rmo.addons.add(k);renderRMo();}
     else if(a==="r-asb"){S.rmo.asbestos=!S.rmo.asbestos;renderRMo();}
   } else {
-    if(a==="q-type"){S.qmo.wt=el.dataset.t;S.qmo.chars=new Set();S.qmo.m="";renderQMo();}
+    if(a==="q-type"){S.qmo.wt=el.dataset.t;S.qmo.chars=new Set();S.qmo.m="";S.qmo.price="";renderQMo();}
     else if(a==="q-char"){const k=el.dataset.k;S.qmo.chars.has(k)?S.qmo.chars.delete(k):S.qmo.chars.add(k);renderQMo();}
   }
 });
@@ -1136,7 +1224,7 @@ $("m-foot").addEventListener("click",e=>{
   } else {
     const mo=S.qmo;
     if(!mo.wt) return;
-    const comp={id:mo.eid??S.q.nid++,wt:mo.wt,m:mo.m,chars:new Set(mo.chars)};
+    const comp={id:mo.eid??S.q.nid++,wt:mo.wt,m:mo.m,chars:new Set(mo.chars),price:mo.price};
     if(mo.eid!==null){const i=S.q.comps.findIndex(c=>c.id===mo.eid);if(i>=0)S.q.comps[i]=comp;}
     else S.q.comps.push(comp);
     closeModal();renderQ();renderQP();
