@@ -1,377 +1,1166 @@
 <!DOCTYPE html>
-<html lang="en-AU">
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Treat Pricing</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Spline+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Treat Plumbing — Job Pricing</title>
 <style>
-  :root{
-    --paper:#f4f0e8; --ink:#1c1a17; --ink-soft:#56514a; --line:#d8d1c4;
-    --copper:#b5471f; --copper-deep:#8f3414; --brass:#c98a2b;
-    --card:#fbf9f4; --good:#3f6f43; --warn:#b07d12; --bad:#9a3b2c;
-    --shadow:0 1px 0 rgba(0,0,0,.04), 0 8px 28px -16px rgba(28,26,23,.35);
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0}
-  body{background:var(--paper);color:var(--ink);font-family:"Spline Sans",sans-serif;line-height:1.5;
-    -webkit-font-smoothing:antialiased;background-image:radial-gradient(rgba(28,26,23,.025) 1px,transparent 1px);background-size:4px 4px}
-  .wrap{max-width:1060px;margin:0 auto;padding:28px 20px 60px}
-  .mono{font-family:"Space Mono",monospace}
-  h1,h2,h3{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.01em;margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+:root{
+  --hdr:#0c2135;
+  --pri:#1d55d3;
+  --pri-lite:#dbeafe;
+  --pri-text:#1e40af;
+  --amber:#b45309;
+  --amber-bg:#fef3c7;
+  --amber-bd:#fbbf24;
+  --red:#b91c1c;
+  --red-bg:#fef2f2;
+  --red-bd:#fca5a5;
+  --bg:#eef2f7;
+  --surf:#fff;
+  --border:#e2e8f0;
+  --text:#0f172a;
+  --text2:#374151;
+  --mute:#6b7280;
+  --r:10px;
+  --sh:0 1px 3px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.06);
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,'Helvetica Neue',Arial,sans-serif;
+  background:var(--bg);color:var(--text);
+  -webkit-font-smoothing:antialiased;font-size:16px;
+}
+#app{
+  display:flex;flex-direction:column;
+  height:100dvh;max-width:500px;margin:0 auto;
+  background:var(--bg);
+}
 
-  header.top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 24px;border-bottom:2px solid var(--ink);padding-bottom:16px}
-  .brand{display:flex;align-items:baseline;gap:10px}
-  .brand h1{font-size:30px;line-height:1}
-  .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--copper);display:inline-block;transform:translateY(-2px)}
-  .brand .sub{font-size:13px;color:var(--ink-soft);letter-spacing:.02em}
-  .stat-strip{display:flex;gap:18px;margin-left:auto;flex-wrap:wrap}
-  .stat{font-size:12px;color:var(--ink-soft);line-height:1.2}
-  .stat b{display:block;font-family:"Bricolage Grotesque";font-weight:700;font-size:18px;color:var(--ink)}
+/* ── Header ── */
+#hdr{
+  flex-shrink:0;background:var(--hdr);color:#fff;
+  padding-top:env(safe-area-inset-top,0px);
+}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:52px}
+.hdr-logo{display:flex;align-items:center;gap:10px}
+.logo-mark{
+  width:32px;height:32px;background:rgba(255,255,255,.15);
+  border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:800;letter-spacing:-0.5px
+}
+.hdr-title{font-size:17px;font-weight:600;letter-spacing:-.3px}
+.draft-badge{
+  font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  background:#f59e0b;color:#7c2d12;padding:3px 8px;border-radius:4px
+}
+.draft-banner{
+  background:var(--amber-bg);border-top:1px solid var(--amber-bd);
+  color:var(--amber);font-size:12px;font-weight:600;letter-spacing:.01em;
+  text-align:center;padding:7px 16px;line-height:1.4
+}
+.tabs{display:flex;background:var(--hdr);padding:0 16px;border-top:1px solid rgba(255,255,255,.08)}
+.tab-btn{
+  flex:1;background:none;border:none;color:rgba(255,255,255,.5);
+  font-size:14px;font-weight:500;padding:11px 0 9px;cursor:pointer;
+  position:relative;transition:color .15s;letter-spacing:.01em;
+  -webkit-tap-highlight-color:transparent
+}
+.tab-btn.active{color:#fff}
+.tab-btn.active::after{
+  content:'';position:absolute;bottom:0;left:16px;right:16px;
+  height:2px;background:#60a5fa;border-radius:2px 2px 0 0
+}
 
-  .principle{margin:16px 0 22px;font-size:13.5px;color:var(--ink-soft);border-left:3px solid var(--brass);padding:2px 0 2px 14px}
-  .principle b{color:var(--ink)}
+/* ── Main scroll ── */
+#main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 0}
 
-  nav.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:22px}
-  .tab{font-family:"Bricolage Grotesque";font-weight:700;font-size:14px;border:1.5px solid var(--line);
-    background:transparent;color:var(--ink-soft);padding:9px 16px;border-radius:999px;cursor:pointer;transition:.15s}
-  .tab:hover{border-color:var(--ink);color:var(--ink)}
-  .tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+/* ── Section labels ── */
+.slabel{
+  font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--mute);padding:0 2px 8px;margin-top:20px
+}
+.slabel:first-child{margin-top:0}
 
-  .panel{display:none;animation:fade .25s ease}
-  .panel.on{display:block}
-  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+/* ── System grid ── */
+.sys-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sys-btn{
+  background:var(--surf);border:2px solid var(--border);border-radius:var(--r);
+  padding:14px 12px 12px;cursor:pointer;text-align:left;
+  transition:all .15s;box-shadow:var(--sh);min-height:74px;
+  display:flex;flex-direction:column;gap:4px;
+  -webkit-tap-highlight-color:transparent
+}
+.sys-btn:active{transform:scale(.97)}
+.sys-btn.sel{background:var(--pri);border-color:var(--pri);color:#fff}
+.sys-name{font-size:14px;font-weight:600;line-height:1.3;color:inherit}
+.sys-n{font-size:11px;color:var(--mute);margin-top:2px}
+.sys-btn.sel .sys-n{color:rgba(255,255,255,.6)}
 
-  .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:22px}
-  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+/* ── Radio list ── */
+.rlist{background:var(--surf);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.rrow{
+  display:flex;align-items:flex-start;padding:13px 16px;cursor:pointer;
+  border-bottom:1px solid var(--border);gap:12px;transition:background .1s;
+  -webkit-tap-highlight-color:transparent
+}
+.rrow:last-child{border-bottom:none}
+.rrow:active{background:var(--bg)}
+.rind{
+  width:20px;height:20px;border-radius:50%;border:2px solid var(--border);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;margin-top:1px
+}
+.rrow.sel .rind{border-color:var(--pri);background:var(--pri)}
+.rdot{width:8px;height:8px;border-radius:50%;background:#fff;opacity:0;transform:scale(0);transition:all .15s}
+.rrow.sel .rdot{opacity:1;transform:scale(1)}
+.rlabel{font-size:15px;font-weight:500;color:var(--text)}
+.rsub{display:block;font-size:12px;color:var(--mute);margin-top:2px;line-height:1.4}
 
-  .card{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow);margin-bottom:18px}
-  .card:last-child{margin-bottom:0}
-  .card h3{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);font-weight:700;margin-bottom:14px}
-  .card h3 .lite{font-weight:400;text-transform:none;letter-spacing:0}
+/* ── Toggle list ── */
+.tlist{background:var(--surf);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.trow{
+  display:flex;align-items:flex-start;padding:13px 16px;cursor:pointer;
+  border-bottom:1px solid var(--border);gap:12px;transition:background .1s;
+  -webkit-tap-highlight-color:transparent
+}
+.trow:last-child{border-bottom:none}
+.trow:active{background:var(--bg)}
+.trow.chk{background:#f0f6ff}
+.tcontent{flex:1;min-width:0}
+.tlabel{font-size:15px;font-weight:500;color:var(--text)}
+.tsub{display:block;font-size:12px;color:var(--mute);margin-top:2px;line-height:1.4}
+.tprice{font-size:15px;font-weight:600;color:var(--text2);flex-shrink:0;margin-left:8px;padding-top:2px}
+.chkbox{
+  width:22px;height:22px;border-radius:6px;border:2px solid var(--border);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;margin-top:1px
+}
+.trow.chk .chkbox{background:var(--pri);border-color:var(--pri)}
 
-  .seg{display:flex;background:#ece6da;border-radius:10px;padding:3px;margin-bottom:16px}
-  .seg button{flex:1;border:0;background:transparent;font-family:"Bricolage Grotesque";font-weight:700;font-size:14px;
-    color:var(--ink-soft);padding:9px;border-radius:8px;cursor:pointer;transition:.15s}
-  .seg button.on{background:var(--paper);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+/* ── Alert banners ── */
+.warn{background:var(--amber-bg);border:1px solid var(--amber-bd);border-radius:var(--r);padding:14px 16px}
+.warn-title{font-size:13px;font-weight:700;color:var(--amber);letter-spacing:.03em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.warn-body{font-size:13px;color:#78350f;line-height:1.55}
+.danger{background:var(--red-bg);border:2px solid var(--red-bd);border-radius:var(--r);padding:14px 16px}
+.danger-title{font-size:13px;font-weight:700;color:var(--red);letter-spacing:.03em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.danger-body{font-size:13px;color:#7f1d1d;line-height:1.55}
 
-  .cats{display:flex;flex-direction:column;gap:7px}
-  .cat{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;
-    border:1.5px solid var(--line);background:var(--paper);border-radius:10px;padding:11px 13px;cursor:pointer;transition:.13s;font-size:14px;color:var(--ink)}
-  .cat:hover{border-color:var(--copper)}
-  .cat.on{border-color:var(--copper);background:#fff;box-shadow:inset 0 0 0 1px var(--copper)}
-  .cat .nm{font-weight:500}
-  .cat .med{font-family:"Space Mono";font-weight:700;font-size:14px}
-  .cat .meta{font-size:11px;color:var(--ink-soft)}
-  .pill{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:999px;white-space:nowrap}
-  .pill.high{background:#e3eee2;color:var(--good)}
-  .pill.medium{background:#f5ecd2;color:var(--warn)}
-  .pill.low{background:#f1ddd7;color:var(--bad)}
-  .legend{font-size:11.5px;color:var(--ink-soft);margin-top:12px;line-height:1.45}
+/* Relining caveat gets bigger treatment */
+.reline-warn{
+  background:var(--amber-bg);border:2px solid var(--amber-bd);
+  border-radius:var(--r);padding:16px
+}
+.reline-warn-title{
+  font-size:15px;font-weight:700;color:var(--amber);
+  margin-bottom:8px;display:flex;align-items:center;gap:7px
+}
+.reline-warn-body{font-size:14px;color:#78350f;line-height:1.6}
+.reline-est-box{
+  margin-top:12px;background:rgba(255,255,255,.55);
+  border-radius:8px;padding:10px 12px
+}
+.reline-est-row{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;padding:3px 0}
+.reline-est-label{color:#92400e}
+.reline-est-val{font-weight:700;color:#7c2d12}
 
-  .cond{display:flex;align-items:flex-start;gap:11px;padding:10px 2px;border-bottom:1px dashed var(--line);cursor:pointer}
-  .cond:last-child{border-bottom:0}
-  .cond .box{width:20px;height:20px;border:1.5px solid var(--ink-soft);border-radius:5px;flex:none;display:grid;place-items:center;transition:.12s;margin-top:1px}
-  .cond.on .box{background:var(--copper);border-color:var(--copper)}
-  .cond .box svg{opacity:0;width:12px;height:12px}
-  .cond.on .box svg{opacity:1}
-  .cond .lab{flex:1;font-size:14px}
-  .cond .lab small{display:block;color:var(--ink-soft);font-size:11.5px}
-  .cond .lab .hint{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--brass);margin-left:6px}
-  .cond .amt{font-family:"Space Mono";font-weight:700;font-size:13.5px;white-space:nowrap;color:var(--copper-deep)}
-  .muted-card{opacity:.5;pointer-events:none}
+/* ── Bottom price panel ── */
+#price-panel{
+  flex-shrink:0;background:var(--surf);
+  border-top:1px solid var(--border);
+  box-shadow:0 -2px 12px rgba(0,0,0,.07);
+  padding:0 16px;
+  padding-bottom:max(env(safe-area-inset-bottom,0px),8px)
+}
+.pc-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 0 11px;cursor:pointer
+}
+.pc-main{flex:1}
+.pc-range{font-size:26px;font-weight:700;letter-spacing:-.5px;line-height:1.15;color:var(--text)}
+.pc-mid{font-size:13px;color:var(--mute);margin-top:3px}
+.pc-chev{width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:var(--mute);flex-shrink:0;transition:transform .2s}
+.pc-chev.up{transform:rotate(180deg)}
+.pc-body{border-top:1px solid var(--border);padding-bottom:4px}
+.pc-section{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mute);padding:10px 0 4px}
+.pc-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:14px}
+.pc-row.divider{border-top:1px solid var(--border);margin-top:4px;padding-top:10px}
+.pc-lbl{color:var(--text2);flex:1}
+.pc-val{font-weight:600;color:var(--text);text-align:right}
+.pc-val.up{color:#15803d}
+.pc-val.dn{color:#9a3412}
+.pc-total{display:flex;justify-content:space-between;align-items:baseline;border-top:1.5px solid var(--text);padding-top:10px;margin-top:6px}
+.pc-total-lbl{font-size:15px;font-weight:700}
+.pc-total-val{font-size:20px;font-weight:700}
+.pc-total-range{font-size:12px;color:var(--mute);text-align:right;padding-bottom:6px}
+.pc-footnote{font-size:11px;color:var(--mute);line-height:1.5;padding:8px 0 4px}
+.pc-empty{padding:15px 0;color:var(--mute);font-size:15px;text-align:center}
 
-  .readout{position:sticky;top:14px;background:var(--ink);color:var(--paper);border-radius:14px;padding:22px;box-shadow:var(--shadow)}
-  .readout .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#b7afa1}
-  .readout .big{font-family:"Bricolage Grotesque";font-weight:800;font-size:44px;line-height:1;margin:6px 0 2px;color:#fff}
-  .readout .band{font-family:"Space Mono";font-size:14px;color:#d8cfbf}
-  .readout .ctx{font-size:12.5px;color:#c8bfb0;margin-top:14px;border-top:1px solid #38342d;padding-top:12px}
-  .readout .breakdown{margin-top:12px;font-size:12.5px}
-  .readout .breakdown div{display:flex;justify-content:space-between;padding:3px 0;color:#d8cfbf}
-  .readout .breakdown .sub{border-top:1px solid #38342d;margin-top:5px;padding-top:6px;color:#efe7d8}
-  .readout .breakdown .gst{border-top:1px solid #38342d;margin-top:6px;padding-top:7px;color:#fff;font-weight:600}
-  .readout .placeholder{color:#7d766a;font-size:14px;padding:18px 0}
-  .tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
-    background:#38342d;color:#e7c98a;padding:2px 8px;border-radius:999px;margin-top:10px}
+/* ── Quoted component cards ── */
+.comp-list{display:flex;flex-direction:column;gap:10px}
+.comp-card{background:var(--surf);border-radius:var(--r);box-shadow:var(--sh);padding:14px 16px}
+.comp-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.comp-num{font-size:11px;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+.comp-type{font-size:16px;font-weight:600;margin-top:2px;flex:1}
+.comp-btns{display:flex;gap:8px;flex-shrink:0}
+.icon-btn{
+  width:32px;height:32px;border-radius:8px;border:none;
+  background:var(--bg);color:var(--text2);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .1s;-webkit-tap-highlight-color:transparent
+}
+.icon-btn:active{background:var(--border)}
+.comp-price-range{font-size:20px;font-weight:700;margin-top:8px}
+.comp-price-mid{font-size:13px;color:var(--mute);margin-top:2px}
+.comp-price-warn{font-size:13px;color:var(--amber);margin-top:3px;font-weight:600}
+.comp-sub-notice{
+  background:var(--amber-bg);border:1px solid var(--amber-bd);
+  border-radius:8px;padding:10px 14px;margin-top:10px;
+  font-size:13px;color:#78350f;line-height:1.5
+}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.chip{
+  font-size:12px;background:var(--pri-lite);color:var(--pri-text);
+  padding:3px 8px;border-radius:20px;font-weight:500
+}
 
-  .slider-row{display:flex;align-items:center;gap:16px;margin:18px 0}
-  input[type=range]{flex:1;accent-color:var(--copper);height:5px}
-  .metre-val{font-family:"Bricolage Grotesque";font-weight:800;font-size:34px;min-width:96px}
-  .metre-val small{font-size:14px;color:var(--ink-soft);font-weight:500}
-  .reline-out{font-family:"Bricolage Grotesque";font-weight:800;font-size:40px;color:var(--copper-deep)}
+/* ── Quoted panel ── */
+.qp-row{display:flex;justify-content:space-between;align-items:baseline;padding:12px 0 4px}
+.qp-lbl{font-size:14px;font-weight:600;color:var(--text2)}
+.qp-val{font-size:22px;font-weight:700;color:var(--text)}
+.qp-note{font-size:12px;color:var(--mute);padding-bottom:10px}
+.add-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;padding:14px;background:var(--surf);
+  border:2px dashed var(--border);border-radius:var(--r);
+  color:var(--pri);font-size:15px;font-weight:600;
+  cursor:pointer;transition:all .15s;box-shadow:var(--sh);margin-top:10px;
+  -webkit-tap-highlight-color:transparent
+}
+.add-btn:active{background:var(--pri-lite)}
 
-  table{width:100%;border-collapse:collapse;font-size:13.5px}
-  th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line)}
-  th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);font-weight:700}
-  td.num,th.num{text-align:right;font-family:"Space Mono"}
-  .winbar{height:7px;border-radius:4px;background:#e7ddca;overflow:hidden;margin-top:5px}
-  .winbar span{display:block;height:100%;background:linear-gradient(90deg,var(--copper),var(--brass))}
+/* ── Empty state ── */
+.empty{text-align:center;padding:48px 24px;color:var(--mute)}
+.empty-icon{width:48px;height:48px;background:var(--border);border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center}
+.empty-title{font-size:16px;font-weight:600;color:var(--text2);margin-bottom:8px}
+.empty-body{font-size:14px;line-height:1.5}
 
-  .note{font-size:13px;color:var(--ink-soft);background:#efe9dd;border-radius:10px;padding:12px 14px;margin-top:14px}
-  .note b{color:var(--ink)}
-  .method li{margin-bottom:11px;font-size:14px}
-  .method b{font-family:"Bricolage Grotesque";font-weight:700}
-  .foot{font-size:11.5px;color:var(--ink-soft);margin-top:28px;text-align:center}
+/* ── Modal ── */
+#overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.45);
+  opacity:0;transition:opacity .25s;pointer-events:none;z-index:90
+}
+#overlay.open{opacity:1;pointer-events:auto}
+#modal{
+  position:fixed;bottom:0;left:50%;
+  transform:translateX(-50%) translateY(100%);
+  width:100%;max-width:500px;height:92dvh;
+  background:var(--surf);border-radius:18px 18px 0 0;
+  transition:transform .3s cubic-bezier(.32,.72,0,1);
+  z-index:91;display:flex;flex-direction:column;
+}
+#modal.open{transform:translateX(-50%) translateY(0)}
+.m-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 0;flex-shrink:0}
+.m-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 20px;border-bottom:1px solid var(--border);flex-shrink:0
+}
+.m-title{font-size:17px;font-weight:700}
+.m-close{
+  width:30px;height:30px;border-radius:50%;background:var(--bg);
+  border:none;color:var(--text2);font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  -webkit-tap-highlight-color:transparent
+}
+.m-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 0}
+.m-foot{
+  padding:12px 16px;
+  padding-bottom:max(12px,env(safe-area-inset-bottom,0px));
+  border-top:1px solid var(--border);flex-shrink:0
+}
+.btn-pri{
+  width:100%;padding:15px;background:var(--pri);color:#fff;
+  border:none;border-radius:var(--r);font-size:16px;font-weight:600;
+  cursor:pointer;transition:opacity .15s;-webkit-tap-highlight-color:transparent
+}
+.btn-pri:active{opacity:.85}
+.btn-pri:disabled{background:var(--border);color:var(--mute);cursor:not-allowed}
+.text-inp{
+  width:100%;padding:13px 14px;background:var(--surf);
+  border:1.5px solid var(--border);border-radius:var(--r);
+  font-size:16px;color:var(--text);outline:none;
+  transition:border-color .15s;box-shadow:var(--sh)
+}
+.text-inp:focus{border-color:var(--pri)}
+
+/* Confidence badge */
+.cbadge{
+  display:inline-flex;align-items:center;
+  font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;
+  text-transform:uppercase;letter-spacing:.04em;vertical-align:middle;margin-left:6px
+}
+.cbadge.med{background:var(--amber-bg);color:var(--amber)}
+.cbadge.sub{background:#f0fdf4;color:#166534}
+
+/* Estimate-leads card price format */
+.c-est{font-size:22px;font-weight:700;color:var(--text);margin-top:8px}
+.c-range{font-size:13px;color:var(--mute);margin-top:2px}
+
+/* Estimate-leads bottom panel */
+.pc-est-big{font-size:26px;font-weight:700;letter-spacing:-.5px;line-height:1.15;color:var(--text)}
+
+.scroll-pad{height:20px}
 </style>
 </head>
 <body>
-<div class="wrap">
-
-  <header class="top">
-    <div class="brand">
-      <span class="dot"></span>
-      <h1>Treat Pricing</h1>
-      <span class="sub">job pricing assistant &middot; built from invoiced history</span>
-    </div>
-    <div class="stat-strip">
-      <div class="stat"><b id="s-jobs"></b>completed jobs</div>
-      <div class="stat"><b id="s-quotes"></b>quotes</div>
-      <div class="stat"><b>Jan 23 to Jun 26</b>data window</div>
-    </div>
-  </header>
-
-  <p class="principle">
-    Three layers build the price. A <b>base works rate</b> for the job type, a set of <b>characteristics</b> that move it up or down,
-    then the <b>standard add ons</b> stacked on top the way they get charged on the invoice. The base is the core works only, with the named add on
-    line items taken out, so nothing is counted twice. There is no cost data behind the figures, so the tool estimates the price but not the margin.
-  </p>
-
-  <nav class="tabs">
-    <button class="tab on" data-p="builder">Price a job</button>
-    <button class="tab" data-p="relining">Relining calculator</button>
-    <button class="tab" data-p="outcomes">Quote outcomes</button>
-    <button class="tab" data-p="method">Method &amp; caveats</button>
-  </nav>
-
-  <!-- BUILDER -->
-  <section class="panel on" id="builder">
-    <div class="grid">
-      <div>
-        <div class="card">
-          <h3>1 &nbsp; Choose the work</h3>
-          <div class="seg" id="engineSeg">
-            <button class="on" data-eng="reactive">Reactive (attend &amp; fix)</button>
-            <button data-eng="quoted">Quoted works</button>
-          </div>
-          <div class="cats" id="catList"></div>
-          <div class="legend" id="legend"></div>
-        </div>
-
-        <div class="card" id="condCard">
-          <h3>2 &nbsp; Characteristics <span class="lite">(move the base up or down)</span></h3>
-          <div id="condList"></div>
-          <div class="note" id="condNote"></div>
-        </div>
-
-        <div class="card" id="addCard">
-          <h3>3 &nbsp; Standard add ons <span class="lite">(charged on top, tick what you will bill)</span></h3>
-          <div id="addonList"></div>
-          <div class="note">Fixed line item rates Treat charges. The ones usual for the chosen job type are ticked for you. Untick or add as the job needs.</div>
-        </div>
+<div id="app">
+  <div id="hdr">
+    <div class="hdr-top">
+      <div class="hdr-logo">
+        <div class="logo-mark">TP</div>
+        <span class="hdr-title">Treat Plumbing Pricing</span>
       </div>
-
-      <div>
-        <div class="readout" id="readout">
-          <div class="lbl">Suggested price (ex GST)</div>
-          <div id="ro-body"><div class="placeholder">Pick a job type on the left to begin.</div></div>
-        </div>
-      </div>
+      <span class="draft-badge">Draft</span>
     </div>
-  </section>
-
-  <!-- RELINING -->
-  <section class="panel" id="relining">
-    <div class="grid">
-      <div class="card">
-        <h3>Pipe relining estimate</h3>
-        <p style="font-size:14px;color:var(--ink-soft);margin-top:0">Relining quotes scale with length plus a fixed set up. Slide to the metres being relined.</p>
-        <div class="slider-row">
-          <input type="range" id="metreSlider" min="1" max="40" value="8" step="1">
-          <div class="metre-val"><span id="metreNum">8</span><small> m</small></div>
-        </div>
-        <div style="border-top:1px solid var(--line);padding-top:16px;margin-top:6px">
-          <div class="lbl" style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-soft)">Indicative quote (ex GST)</div>
-          <div class="reline-out" id="relineOut"></div>
-          <div class="mono" style="font-size:13px;color:var(--ink-soft);margin-top:4px" id="relineFormula"></div>
-        </div>
-      </div>
-      <div class="card">
-        <h3>How firm is this</h3>
-        <p style="font-size:14px;color:var(--ink-soft)">
-          Fitted on <b id="rel-n"></b> approved relining quotes that stated a length. Length explains only about <b id="rel-r2"></b> of the price, so access, depth, bends and reinstatement move it a lot. Treat it as a starting point, not a locked figure.</p>
-        <div class="note">Median approved relining quote is <b id="rel-med"></b>, with most between <b id="rel-band"></b>. Use the slider for a length steer, then check it against that band.</div>
-      </div>
+    <div class="draft-banner">
+      Draft tool &mdash; pending owner review. Do not use for final pricing without Peter's sign-off.
     </div>
-  </section>
-
-  <!-- OUTCOMES -->
-  <section class="panel" id="outcomes">
-    <div class="card">
-      <h3>Quote conversion by work type <span class="lite">(pending counted as not won)</span></h3>
-      <table>
-        <thead><tr><th>Work type</th><th class="num">Won</th><th class="num">Rejected</th><th class="num">Still pending</th><th class="num">Win rate</th></tr></thead>
-        <tbody id="wlBody"></tbody>
-      </table>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="reactive">Reactive jobs</button>
+      <button class="tab-btn" data-tab="quoted">Quoted works</button>
     </div>
-    <div class="grid">
-      <div class="card">
-        <h3>Headline</h3>
-        <p style="font-size:14px;margin-top:0">Counting pending quotes as not won, the realistic overall conversion is <b id="o-win"></b>. A quote left sitting unconverted is treated as a job not landed.</p>
-      </div>
-      <div class="card">
-        <h3>One caveat</h3>
-        <p style="font-size:13.5px;color:var(--ink-soft);margin-top:0">Only <b id="o-rej"></b> quotes are formally marked rejected, while <b id="o-pend"></b> sit pending. So pending mixes genuine losses with quotes that merely stalled. The approvals are reliable, the split between dead and dormant is not.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- METHOD -->
-  <section class="panel" id="method">
-    <div class="card">
-      <h3>How a price is built</h3>
-      <ul class="method" style="padding-left:18px;margin:0">
-        <li><b>Base works rate.</b> The typical core works amount Treat invoiced for that job type, learned from history. The named add on line items are taken out first, so the base is the works only. It is not hours times a rate.</li>
-        <li><b>Characteristics.</b> Things about the job that make the core works cost more, fitted per type from the history: excavation, difficult access, multiple units, replacement, and after hours. Only drivers the data actually supports for that type are shown, so a wide type like burst pipe resolves to a real number once you say what the job involves.</li>
-        <li><b>Standard add ons.</b> The fixed line item charges, callout, jet, camera, eel, leak detection, stacked on top the way they appear on the invoice. The ones usual for a job type are ticked by default. Because they were stripped out of the base, adding them here counts them once, not twice. After hours appears in both places on purpose: the works premium sits in the characteristic, the fixed callout fee sits in the add on.</li>
-        <li><b>No margin, by design.</b> Material cost is blank on most jobs and the labour cost field mirrors the sell price, so there is no cost base. The tool estimates the price, not the margin.</li>
-        <li><b>Two populations.</b> Reactive is attend and fix, priced after the fact. Quoted works are scoped up front and priced on scope and quantity, so the characteristics and add ons apply to reactive only. The two are not additive.</li>
-        <li><b>Classification is first pass.</b> Job types come from keywords in the work performed narrative, after stripping recommended future works. The buckets and drivers can be refined as the tool is used.</li>
-      </ul>
-      <div class="note" style="margin-top:16px"><b>Sample label.</b> The high, medium and low flag is how much history sits behind a type: high is 40 or more jobs, medium 15 to 39, low under 15. It says how much evidence there is, not how certain the price is.</div>
-    </div>
-  </section>
-
-  <div class="foot">Treat Plumbing pricing pilot &middot; figures are decision support, the final price is set on the job.</div>
+  </div>
+  <div id="main">
+    <div id="vr"></div>
+    <div id="vq" style="display:none"></div>
+  </div>
+  <div id="price-panel"></div>
+</div>
+<div id="overlay"></div>
+<div id="modal">
+  <div class="m-handle"></div>
+  <div class="m-head">
+    <span class="m-title" id="m-title">Add component</span>
+    <button class="m-close" id="m-close">&#x2715;</button>
+  </div>
+  <div class="m-body" id="m-body"></div>
+  <div class="m-foot" id="m-foot"></div>
 </div>
 
 <script>
-const DATA = {"window":"Jan 2023 to Jun 2026","counts":{"completed_jobs":7026,"reactive_jobs":4913,"won_quoted_jobs":2113,"distinct_quotes":4005,"approved_quotes":1950},"split_pct":{"reactive":69.9,"quoted":30.1},"reactive":[{"category":"Tap / fixture repair","n":1012,"median":450,"confidence":"high","base":431,"band_lo":0.67,"band_hi":1.367,"conditions":[{"key":"access","label":"Difficult access","help":"Roof, riser, ceiling cavity, confined space or height work.","factor":1.663,"pct":66},{"key":"excavation","label":"Excavation or breaking concrete","help":"Digging, jackhammering, cutting out, chasing walls or core drilling.","factor":1.398,"pct":40},{"key":"after_hours","label":"After hours / emergency","help":"Out of hours attendance. This is the works premium only. The fixed callout fee is a separate add on.","factor":1.227,"pct":23}],"default_addons":[],"common_addons":[]},{"category":"Hot water / TMV","n":865,"median":660,"confidence":"high","base":543,"band_lo":0.645,"band_hi":1.483,"conditions":[{"key":"excavation","label":"Excavation or breaking concrete","help":"Digging, jackhammering, cutting out, chasing walls or core drilling.","factor":1.787,"pct":79},{"key":"access","label":"Difficult access","help":"Roof, riser, ceiling cavity, confined space or height work.","factor":1.344,"pct":34},{"key":"after_hours","label":"After hours / emergency","help":"Out of hours attendance. This is the works premium only. The fixed callout fee is a separate add on.","factor":1.28,"pct":28}],"default_addons":[],"common_addons":[]},{"category":"Drain clear (jet/hydro)","n":801,"median":860,"confidence":"high","base":789,"band_lo":0.725,"band_hi":1.33,"conditions":[{"key":"multi_unit","label":"Multiple units affected","help":"Work spanning two or more units or tenancies.","factor":1.474,"pct":47},{"key":"excavation","label":"Excavation or breaking concrete","help":"Digging, jackhammering, cutting out, chasing walls or core drilling.","factor":1.363,"pct":36},{"key":"after_hours","label":"After hours / emergency","help":"Out of hours attendance. This is the works premium only. The fixed callout fee is a separate add on.","factor":1.338,"pct":34},{"key":"replace","label":"Replacing or installing a unit","help":"Supplying and fitting new gear rather than repairing what is there.","factor":1.249,"pct":25}],"default_addons":["Jet blaster","Drain camera survey (CCTV)"],"common_addons":[]},{"category":"Burst pipe repair","n":595,"median":740,"confidence":"high","base":649,"band_lo":0.709,"band_hi":1.315,"conditions":[{"key":"excavation","label":"Excavation or breaking concrete","help":"Digging, jackhammering, cutting out, chasing walls or core drilling.","factor":1.449,"pct":45},{"key":"after_hours","label":"After hours / emergency","help":"Out of hours attendance. This is the works premium only. The fixed callout fee is a separate add on.","factor":1.362,"pct":36}],"default_addons":[],"common_addons":[]},{"category":"Leak investigation","n":530,"median":530,"confidence":"high","base":492,"band_lo":0.725,"band_hi":1.289,"conditions":[{"key":"replace","label":"Replacing or installing a unit","help":"Supplying and fitting new gear rather than repairing what is there.","factor":1.212,"pct":21},{"key":"excavation","label":"Excavation or breaking concrete","help":"Digging, jackhammering, cutting out, chasing walls or core drilling.","factor":1.179,"pct":18},{"key":"access","label":"Difficult access","help":"Roof, riser, ceiling cavity, confined space or height work.","factor":1.15,"pct":15}],"default_addons":[],"common_addons":[]},{"category":"Drain clear (electric eel)","n":409,"median":680,"confidence":"high","base":672,"band_lo":0.803,"band_hi":1.197,"conditions":[{"key":"multi_unit","label":"Multiple units affected","help":"Work spanning two or more units or tenancies.","factor":1.34,"pct":34},{"key":"after_hours","label":"After hours / emergency","help":"Out of hours attendance. This is the works premium only. The fixed callout fee is a separate add on.","factor":1.293,"pct":29},{"key":"excavation","label":"Excavation or breaking concrete","help":"Digging, jackhammering, cutting out, chasing walls or core drilling.","factor":1.251,"pct":25},{"key":"replace","label":"Replacing or installing a unit","help":"Supplying and fitting new gear rather than repairing what is there.","factor":1.214,"pct":21}],"default_addons":[],"common_addons":[]},{"category":"Investigation / attendance","n":276,"median":484,"confidence":"high","base":502,"band_lo":0.678,"band_hi":1.335,"conditions":[{"key":"excavation","label":"Excavation or breaking concrete","help":"Digging, jackhammering, cutting out, chasing walls or core drilling.","factor":1.172,"pct":17},{"key":"replace","label":"Replacing or installing a unit","help":"Supplying and fitting new gear rather than repairing what is there.","factor":1.121,"pct":12}],"default_addons":[],"common_addons":[]},{"category":"Blockage clear (general)","n":238,"median":640,"confidence":"high","base":646,"band_lo":0.704,"band_hi":1.431,"conditions":[{"key":"excavation","label":"Excavation or breaking concrete","help":"Digging, jackhammering, cutting out, chasing walls or core drilling.","factor":1.189,"pct":19},{"key":"access","label":"Difficult access","help":"Roof, riser, ceiling cavity, confined space or height work.","factor":1.142,"pct":14}],"default_addons":[],"common_addons":[]},{"category":"Leak repair","n":115,"median":520,"confidence":"high","base":457,"band_lo":0.665,"band_hi":1.27,"conditions":[{"key":"after_hours","label":"After hours / emergency","help":"Out of hours attendance. This is the works premium only. The fixed callout fee is a separate add on.","factor":1.406,"pct":41},{"key":"access","label":"Difficult access","help":"Roof, riser, ceiling cavity, confined space or height work.","factor":1.318,"pct":32}],"default_addons":[],"common_addons":[]},{"category":"Other reactive","n":35,"median":620,"confidence":"medium","base":620,"band_lo":0.774,"band_hi":3.357,"conditions":[],"default_addons":[],"common_addons":[]},{"category":"Backflow / TMV","n":24,"median":680,"confidence":"medium","base":680,"band_lo":0.647,"band_hi":1.125,"conditions":[],"default_addons":[],"common_addons":[]}],"quoted":[{"category":"Excavation / pipe replacement","n":632,"median":3840,"p25":2480,"p75":5750,"confidence":"high"},{"category":"Remedial / building works","n":310,"median":1940,"p25":1280,"p75":2780,"confidence":"high"},{"category":"Stormwater works","n":232,"median":1580,"p25":1180,"p75":1980,"confidence":"high"},{"category":"Pipe relining","n":195,"median":6468,"p25":4540,"p75":9909,"confidence":"high"},{"category":"Preventative maintenance / clear-out","n":162,"median":1180,"p25":942,"p75":1328,"confidence":"high"},{"category":"Other quoted","n":149,"median":1580,"p25":1040,"p75":2720,"confidence":"high"},{"category":"Hot water","n":56,"median":2790,"p25":1448,"p75":4008,"confidence":"high"},{"category":"Tap / fixture","n":44,"median":1210,"p25":850,"p75":1740,"confidence":"high"},{"category":"Pump works","n":35,"median":1450,"p25":850,"p75":2565,"confidence":"medium"},{"category":"Backflow / TMV","n":20,"median":1380,"p25":635,"p75":2225,"confidence":"medium"}],"reline_model":{"setup":4853,"per_metre":546,"n":149,"r2":0.43},"addons":[{"name":"Emergency after-hours callout","typical":380,"n":469},{"name":"Jet blaster","typical":300,"n":809},{"name":"Drain camera survey (CCTV)","typical":250,"n":787},{"name":"Electric eel","typical":200,"n":50},{"name":"Pipe location / leak detection","typical":550,"n":88}],"winloss":[{"category":"Excavation / pipe replacement","approved":663,"rejected":52,"pending":508,"win_rate":54.2},{"category":"Remedial / building works","approved":329,"rejected":27,"pending":440,"win_rate":41.3},{"category":"Pipe relining","approved":211,"rejected":10,"pending":270,"win_rate":43.0},{"category":"Stormwater works","approved":246,"rejected":15,"pending":208,"win_rate":52.5},{"category":"Preventative maintenance / clear-out","approved":169,"rejected":21,"pending":147,"win_rate":50.1},{"category":"Other quoted","approved":165,"rejected":15,"pending":154,"win_rate":49.4},{"category":"Hot water","approved":61,"rejected":8,"pending":64,"win_rate":45.9},{"category":"Tap / fixture","approved":51,"rejected":4,"pending":57,"win_rate":45.5},{"category":"Pump works","approved":35,"rejected":1,"pending":28,"win_rate":54.7},{"category":"Backflow / TMV","approved":20,"rejected":3,"pending":22,"win_rate":44.4}],"status_counts":{"Approved":1950,"Pending Approval":1699,"In Progress":199,"Rejected":156},"overall_winrate":48.7};
+/* ═══════════════════════════════════════════════════
+   MODEL — embedded from data/model/pricing_model.json
+   ═══════════════════════════════════════════════════ */
+const M = {
+  reactive:[
+    {sys:"Sewer and sanitary drainage",n:1366,median:780,base:486,lo:.732,hi:1.251,
+     conds:[
+       {k:"grease_trap",  lbl:"Grease trap or commercial kitchen drainage", pct:36},
+       {k:"excavation",   lbl:"Excavation required",                         pct:50},
+       {k:"electric_eel", lbl:"Electric eel required",                       pct:26},
+       {k:"cctv_camera",  lbl:"CCTV drain camera survey",                    pct:52},
+       {k:"multi_unit",   lbl:"Multi-unit access required",                  pct:23},
+       {k:"difficult_access",lbl:"Difficult or restricted access",           pct:29}
+     ]},
+    {sys:"Waterproofing and building envelope",n:792,median:620,base:735,lo:.754,hi:1.268,
+     conds:[
+       {k:"excavation",      lbl:"Excavation required",                       pct:43},
+       {k:"diagnosis_only",  lbl:"Diagnose or investigate only",              pct:-32},
+       {k:"multiple_faults", lbl:"Multiple separate faults in one visit",     pct:24},
+       {k:"cctv_camera",     lbl:"CCTV drain camera survey",                  pct:30},
+       {k:"pipe_location",   lbl:"Pipe location or specialist leak detection", pct:22},
+       {k:"difficult_access",lbl:"Difficult or restricted access",            pct:20}
+     ]},
+    {sys:"Hot water",n:758,median:680,base:383,lo:.724,hi:1.326,
+     conds:[
+       {k:"excavation",      lbl:"Excavation required",                       pct:62},
+       {k:"pipe_location",   lbl:"Pipe location or specialist leak detection", pct:62},
+       {k:"building_shutdown",lbl:"Building-wide water shutdown",             pct:46},
+       {k:"difficult_access",lbl:"Difficult or restricted access",            pct:42},
+       {k:"multiple_faults", lbl:"Multiple separate faults in one visit",     pct:28},
+       {k:"common_property", lbl:"Confirmed common property defect",          pct:26}
+     ]},
+    {sys:"Cold water supply",n:654,median:545,base:343,lo:.762,hi:1.248,
+     conds:[
+       {k:"excavation",      lbl:"Excavation required",                       pct:95},
+       {k:"pipe_location",   lbl:"Pipe location or specialist leak detection", pct:54},
+       {k:"difficult_access",lbl:"Difficult or restricted access",            pct:40},
+       {k:"multiple_faults", lbl:"Multiple separate faults in one visit",     pct:31},
+       {k:"building_shutdown",lbl:"Building-wide water shutdown",             pct:38},
+       {k:"multi_unit",      lbl:"Multi-unit access required",                pct:16}
+     ]},
+    {sys:"Fixtures and tapware",n:595,median:380,base:351,lo:.710,hi:1.253,
+     conds:[
+       {k:"multiple_faults", lbl:"Multiple separate faults in one visit",     pct:72},
+       {k:"pipe_location",   lbl:"Pipe location or specialist leak detection", pct:39},
+       {k:"cctv_camera",     lbl:"CCTV drain camera survey",                  pct:32},
+       {k:"difficult_access",lbl:"Difficult or restricted access",            pct:30},
+       {k:"multi_unit",      lbl:"Multi-unit access required",                pct:17},
+       {k:"common_property", lbl:"Confirmed common property defect",          pct:27}
+     ]},
+    {sys:"Stormwater and roof drainage",n:495,median:780,base:496,lo:.708,hi:1.302,
+     conds:[
+       {k:"multiple_faults", lbl:"Multiple separate faults in one visit",     pct:55},
+       {k:"cctv_camera",     lbl:"CCTV drain camera survey",                  pct:40},
+       {k:"difficult_access",lbl:"Difficult or restricted access",            pct:27},
+       {k:"multi_unit",      lbl:"Multi-unit access required",                pct:26},
+       {k:"tree_roots",      lbl:"Tree roots confirmed",                      pct:32},
+       {k:"excavation",      lbl:"Excavation required",                       pct:31}
+     ]},
+    {sys:"Gas",n:102,median:641,base:514,lo:.720,hi:1.299,
+     conds:[
+       {k:"pipe_location",        lbl:"Pipe location or specialist leak detection", pct:75},
+       {k:"authority_coordination",lbl:"Regulatory or authority coordination",      pct:60},
+       {k:"difficult_access",     lbl:"Difficult or restricted access",             pct:42},
+       {k:"multi_unit",           lbl:"Multi-unit access required",                 pct:30},
+       {k:"diagnosis_only",       lbl:"Diagnose or investigate only",               pct:-25}
+     ]},
+    {sys:"Compliance and certification",n:46,median:648,base:648,lo:.803,hi:1.050,conds:[]}
+  ],
+  quoted:[
+    {wt:"Sewer relining",n:139,nb:62,median:6396,base:5543,lo:.730,hi:1.316,conf:"high",
+     conds:[
+       {k:"multi_unit",      lbl:"Multi-unit or multi-location",  f:1.428},
+       {k:"earthenware_pipe",lbl:"Earthenware pipe material",     f:1.336}
+     ]},
+    {wt:"Sewer excavation and replacement",n:206,nb:96,median:3645,base:1898,lo:.725,hi:1.322,conf:"high",
+     conds:[
+       {k:"reinstatement_included",lbl:"Reinstatement included in scope",           f:1.677},
+       {k:"prior_cctv",            lbl:"Prior CCTV completed, scope already defined",f:1.532},
+       {k:"building_shutdown",     lbl:"Building-wide water shutdown",              f:1.434},
+       {k:"multi_unit",            lbl:"Multi-unit or multi-location",              f:1.349},
+       {k:"excavation",            lbl:"Excavation required",                       f:1.174}
+     ]},
+    {wt:"Stormwater works",n:202,nb:90,median:3240,base:1707,lo:.666,hi:1.397,conf:"high",
+     conds:[
+       {k:"trenchless",            lbl:"Trenchless (no-dig) method",               f:2.603},
+       {k:"reinstatement_included",lbl:"Reinstatement included in scope",          f:1.666},
+       {k:"excavation",            lbl:"Excavation required",                      f:1.567},
+       {k:"two_plumbers",          lbl:"Two plumbers required simultaneously",     f:1.422},
+       {k:"prior_cctv",            lbl:"Prior CCTV completed, scope already defined",f:1.248},
+       {k:"urgent",                lbl:"Urgent or emergency classification",        f:1.166}
+     ]},
+    {wt:"Water supply works",n:219,nb:108,median:2877,base:979,lo:.643,hi:1.445,conf:"high",
+     conds:[
+       {k:"urgent",                lbl:"Urgent or emergency classification",        f:1.943},
+       {k:"reinstatement_included",lbl:"Reinstatement included in scope",          f:1.654},
+       {k:"multi_unit",            lbl:"Multi-unit or multi-location",             f:1.525},
+       {k:"excavation",            lbl:"Excavation required",                      f:1.489},
+       {k:"building_shutdown",     lbl:"Building-wide water shutdown",             f:1.217}
+     ]},
+    {wt:"Hot water plant",n:76,nb:13,median:2163,base:1841,lo:.597,hi:1.614,conf:"high",
+     conds:[
+       {k:"building_shutdown",lbl:"Building-wide water shutdown",f:1.761}
+     ]},
+    {wt:"Shower and wet area waterproofing",n:131,nb:77,median:1340,base:999,lo:.791,hi:1.167,conf:"high",
+     conds:[
+       {k:"reinstatement_included",lbl:"Reinstatement included in scope",f:3.177},
+       {k:"urgent",               lbl:"Urgent or emergency classification",f:1.223}
+     ]},
+    {wt:"Preventative maintenance",n:294,nb:43,median:1280,base:1446,lo:.780,hi:1.092,conf:"high",
+     conds:[
+       {k:"two_plumbers",lbl:"Two plumbers required simultaneously",f:1.188}
+     ]},
+    {wt:"Gas",n:26,nb:5,median:3497,base:3497,lo:.800,hi:2.022,conf:"medium",conds:[]},
+    {wt:"Compliance certification",n:22,nb:0,median:679,base:679,lo:.855,hi:1.002,conf:"medium",conds:[]},
+    {wt:"Making good (remedial finishes)",n:0,nb:0,median:0,base:0,lo:1,hi:1,conf:"sub",conds:[]},
+    {wt:"Other",n:0,nb:0,median:0,base:0,lo:1,hi:1,conf:"none",conds:[]}
+  ],
+  addons:[
+    {k:"callout",name:"Emergency after-hours callout",  amt:380,n:469},
+    {k:"jet",    name:"Jet blaster",                    amt:300,n:809},
+    {k:"cctv",   name:"Drain camera survey (CCTV)",     amt:250,n:787},
+    {k:"eel",    name:"Electric eel",                   amt:200,n:50},
+    {k:"locate", name:"Pipe location / leak detection", amt:550,n:88}
+  ],
+  reline:{setup:7138,per_m:180,n:112,r2:.20}
+};
 
-const $=s=>document.querySelector(s);
-const money=n=>'$'+Math.round(n).toLocaleString('en-AU');
+/* ═══════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════ */
+const S = {
+  tab:"reactive",
+  r:{ comps:[], nid:1 },   // reactive job list
+  q:{ comps:[], nid:1 },   // quoted works list
+  rmo:{                    // reactive modal state
+    eid:null, si:null, act:null,
+    chars:new Set(), addons:new Set(), asbestos:false
+  },
+  qmo:{                    // quoted modal state
+    eid:null, wt:null, m:"", chars:new Set()
+  },
+  mt:null,   // active modal type: "r" | "q"
+  rpx:false, // reactive bottom panel expanded
+  qpx:false, // quoted bottom panel expanded
+};
 
-$('#s-jobs').textContent=DATA.counts.completed_jobs.toLocaleString();
-$('#s-quotes').textContent=DATA.counts.distinct_quotes.toLocaleString();
+/* ═══════════════════════════════════════════
+   HELPERS
+   ═══════════════════════════════════════════ */
+const $=id=>document.getElementById(id);
+const fmt=n=>"$"+Math.round(n).toLocaleString("en-AU");
+const rng=(a,b)=>fmt(a)+" – "+fmt(b);
 
-let engine='reactive', selCat=null, sel={}, addSel={};
+const SYS_SHORT={
+  "Sewer and sanitary drainage":        "Sewer & drainage",
+  "Waterproofing and building envelope":"Waterproofing",
+  "Hot water":                          "Hot water",
+  "Cold water supply":                  "Cold water",
+  "Fixtures and tapware":               "Fixtures & tapware",
+  "Stormwater and roof drainage":       "Stormwater",
+  "Gas":                                "Gas",
+  "Compliance and certification":       "Compliance"
+};
 
-document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
-  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
-  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
-  t.classList.add('on'); $('#'+t.dataset.p).classList.add('on');
-});
+const ACTIONS=[
+  {k:"clear",   l:"Clear blockage"},
+  {k:"diagnose",l:"Diagnose or investigate only"},
+  {k:"repair",  l:"Repair"},
+  {k:"replace", l:"Replace or install"},
+  {k:"safe",    l:"Make safe (temporary fix)"},
+];
 
-document.querySelectorAll('#engineSeg button').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('#engineSeg button').forEach(x=>x.classList.remove('on'));
-  b.classList.add('on'); engine=b.dataset.eng; selCat=null; sel={}; addSel={};
-  renderCats(); renderConditions(); renderAddons(); renderReadout();
-});
+const WTS=[
+  "Sewer relining","Sewer excavation and replacement","Stormwater works",
+  "Water supply works","Hot water plant","Shower and wet area waterproofing",
+  "Preventative maintenance","Gas","Compliance certification",
+  "Making good (remedial finishes)","Other"
+];
 
-function renderCats(){
-  const list=$('#catList'); list.innerHTML='';
-  DATA[engine].forEach((c,i)=>{
-    const el=document.createElement('button');
-    el.className='cat'+(selCat===i?' on':'');
-    const head=engine==='reactive'?money(c.base):money(c.median);
-    el.innerHTML=`<span class="nm">${c.category}<br><span class="meta">${c.n.toLocaleString()} jobs on record</span></span>
-      <span style="text-align:right"><span class="med">${head}</span><br><span class="pill ${c.confidence}">${c.confidence}</span></span>`;
-    el.onclick=()=>{
-      selCat=i; sel={}; addSel={};
-      if(engine==='reactive') (DATA.reactive[i].default_addons||[]).forEach(n=>addSel[n]=true);
-      renderCats(); renderConditions(); renderAddons(); renderReadout();
-    };
-    list.appendChild(el);
+/* SVGs */
+const ICO={
+  chk:()=>'<svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1 5L5 9L12 1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  chev:()=>'<svg width="14" height="8" viewBox="0 0 14 8" fill="none"><path d="M1 1L7 7L13 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  edit:()=>'<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9.5 2L12 4.5L4.5 12H2V9.5L9.5 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>',
+  del:()=>'<svg width="13" height="14" viewBox="0 0 13 14" fill="none"><path d="M1 3.5H12M4.5 3.5V2H8.5V3.5M3 3.5L3.5 12H9.5L10 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  plus:()=>'<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1V13M1 7H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  warn:()=>'<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5L14.5 13.5H1.5L8 1.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 6.5V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11.5" r=".8" fill="currentColor"/></svg>',
+  danger:()=>'<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 5V8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11" r=".75" fill="currentColor"/></svg>',
+};
+
+/* ═══════════════════════════════════════════
+   CALC — REACTIVE COMPONENT
+   ═══════════════════════════════════════════ */
+function calcRComp(comp){
+  const sys=M.reactive[comp.si];
+  let est=sys.base;
+  const factors=[];
+  sys.conds.forEach(c=>{
+    const active=c.k==="diagnosis_only"
+      ? comp.act==="diagnose"
+      : comp.chars.has(c.k);
+    if(active){est*=(1+c.pct/100);factors.push(c);}
   });
-  $('#legend').innerHTML=engine==='reactive'
-    ? 'The figure is the base works rate for the type, add ons excluded. The flag is how much history backs it: <b>high</b> 40+ jobs, <b>medium</b> 15 to 39, <b>low</b> under 15.'
-    : 'The figure is the median approved quote for the type. Quoted works are priced on scope and quantity, so place the job in the range by how big it is.';
+  let addonAmt=0;
+  const addons=[];
+  M.addons.forEach(a=>{
+    if(comp.addons.has(a.k)){addonAmt+=a.amt;addons.push(a);}
+  });
+  const coreLo=est*sys.lo, coreHi=est*sys.hi;
+  return{
+    sys,base:sys.base,est:Math.round(est),
+    lo:Math.round(coreLo),hi:Math.round(coreHi),
+    addonAmt,addons,
+    totLo:Math.round(coreLo+addonAmt),
+    totHi:Math.round(coreHi+addonAmt),
+    tot:Math.round(est+addonAmt),
+    factors,n:sys.n
+  };
 }
 
-const CHECK='<svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" fill="none" stroke="#fff" stroke-width="2"/></svg>';
-
-function renderConditions(){
-  const card=$('#condCard'), list=$('#condList'), note=$('#condNote');
-  if(engine!=='reactive'){ card.classList.add('muted-card'); list.innerHTML=''; note.innerHTML='Quoted works are priced on scope and quantity, so characteristics do not apply. For relining use the calculator tab.'; return; }
-  card.classList.remove('muted-card'); list.innerHTML='';
-  if(selCat===null){ note.innerHTML='Pick a job type first. Each type shows the characteristics that actually move its price.'; return; }
-  const c=DATA.reactive[selCat];
-  if(!c.conditions.length){ note.innerHTML='For this type the history shows no characteristic that reliably moves the price, so it stays at the base. Read the job on its merits.'; return; }
-  c.conditions.forEach(cd=>{
-    const el=document.createElement('div'); el.className='cond'+(sel[cd.key]?' on':'');
-    el.innerHTML=`<span class="box">${CHECK}</span><span class="lab">${cd.label}<small>${cd.help}</small></span><span class="amt">+${cd.pct}%</span>`;
-    el.onclick=()=>{sel[cd.key]=!sel[cd.key]; renderConditions(); renderReadout();};
-    list.appendChild(el);
+/* ═══════════════════════════════════════════
+   CALC — QUOTED COMPONENT
+   ═══════════════════════════════════════════ */
+function calcComp(comp){
+  if(comp.wt==="Making good (remedial finishes)"||comp.wt==="Other") return null;
+  const wt=M.quoted.find(q=>q.wt===comp.wt);
+  if(!wt||wt.conf==="none") return null;
+  let est=wt.base;
+  const factors=[];
+  wt.conds.forEach(c=>{
+    if(comp.chars.has(c.k)){
+      est*=c.f;factors.push(c);
+    }
   });
-  note.innerHTML='Specific to this job type and drawn from what similar jobs were charged. Stacking several suits a genuinely big job, but reads high if over applied.';
+  const useReline=(comp.wt==="Sewer relining"&&comp.m&&parseFloat(comp.m)>0);
+  let relineEst=null;
+  if(useReline) relineEst=Math.round(M.reline.setup+M.reline.per_m*parseFloat(comp.m));
+  const finalEst=useReline?relineEst:Math.round(est);
+  // For relining, apply the model band to the length estimate so the range still leads
+  const finalLo=Math.round((useReline?relineEst:est)*wt.lo);
+  const finalHi=Math.round((useReline?relineEst:est)*wt.hi);
+  return{
+    wt,est:finalEst,
+    lo:finalLo,hi:finalHi,
+    modelEst:Math.round(est),factors,useReline,relineEst
+  };
 }
 
-function renderAddons(){
-  const card=$('#addCard'), list=$('#addonList');
-  if(engine!=='reactive'){ card.classList.add('muted-card'); list.innerHTML=''; return; }
-  card.classList.remove('muted-card'); list.innerHTML='';
-  const c=selCat!==null?DATA.reactive[selCat]:null;
-  DATA.addons.forEach(a=>{
-    const usual=c&&c.default_addons.includes(a.name);
-    const common=c&&c.common_addons.includes(a.name);
-    const el=document.createElement('div'); el.className='cond'+(addSel[a.name]?' on':'');
-    let hint=usual?'<span class="hint">usual for this type</span>':(common?'<span class="hint">sometimes</span>':'');
-    el.innerHTML=`<span class="box">${CHECK}</span><span class="lab">${a.name}${hint}<small>seen on ${a.n} invoices</small></span><span class="amt">+${money(a.typical)}</span>`;
-    el.onclick=()=>{addSel[a.name]=!addSel[a.name]; renderAddons(); renderReadout();};
-    list.appendChild(el);
-  });
+/* ═══════════════════════════════════════════
+   RENDER — REACTIVE (component list)
+   ═══════════════════════════════════════════ */
+function renderR(){
+  const r=S.r;
+  let h="";
+  if(r.comps.length===0){
+    h+=`<div class="empty">
+      <div class="empty-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <rect x="2" y="2" width="18" height="18" rx="4" stroke="var(--mute)" stroke-width="1.5"/>
+        <path d="M11 7V15M7 11H15" stroke="var(--mute)" stroke-width="1.5" stroke-linecap="round"/>
+      </svg></div>
+      <div class="empty-title">No job items yet</div>
+      <div class="empty-body">Add each reactive job item. The tool totals them so you can price a multi-issue attendance.</div>
+    </div>`;
+  } else {
+    h+='<p class="slabel">Job items</p><div class="comp-list">';
+    r.comps.forEach((comp,idx)=>{
+      const calc=calcRComp(comp);
+      const sys=M.reactive[comp.si];
+      const act=ACTIONS.find(a=>a.k===comp.act);
+      const hasAddons=calc.addonAmt>0;
+      const dispEst=hasAddons?calc.tot:calc.est;
+      const dispLo=hasAddons?calc.totLo:calc.lo;
+      const dispHi=hasAddons?calc.totHi:calc.hi;
+
+      let chips='<div class="chips">';
+      calc.factors.forEach(f=>{
+        if(f.k!=="diagnosis_only") chips+=`<span class="chip">${f.lbl.length>28?f.lbl.slice(0,26)+"…":f.lbl}</span>`;
+      });
+      calc.addons.forEach(a=>{ chips+=`<span class="chip">${a.name}</span>`; });
+      chips+="</div>";
+
+      const abWarn=comp.asbestos?`<div class="danger" style="margin-top:10px">
+        <div class="danger-title">${ICO.danger()} Asbestos risk noted</div>
+        <div class="danger-body">Do not disturb any materials until an asbestos management plan is in place. Handle separately from this pricing.</div>
+      </div>`:"";
+
+      h+=`<div class="comp-card">
+        <div class="comp-hdr">
+          <div>
+            <div class="comp-num">Item ${idx+1}</div>
+            <div class="comp-type">${SYS_SHORT[sys.sys]||sys.sys}${act?" &middot; "+act.l:""}</div>
+          </div>
+          <div class="comp-btns">
+            <button class="icon-btn" data-a="r-edit" data-id="${comp.id}">${ICO.edit()}</button>
+            <button class="icon-btn" data-a="r-del"  data-id="${comp.id}">${ICO.del()}</button>
+          </div>
+        </div>
+        <div class="c-est">${fmt(dispEst)}</div>
+        <div class="c-range">${rng(dispLo,dispHi)} &middot; ${calc.n.toLocaleString()} similar jobs</div>
+        ${chips}${abWarn}
+      </div>`;
+    });
+    h+="</div>";
+  }
+  h+=`<button class="add-btn" data-a="open-rmo">${ICO.plus()} Add job item</button>`;
+  h+='<div class="scroll-pad"></div>';
+  $("vr").innerHTML=h;
 }
 
-function renderReadout(){
-  const body=$('#ro-body');
-  if(selCat===null){ body.innerHTML='<div class="placeholder">Pick a job type on the left to begin.</div>'; return; }
-  const c=DATA[engine][selCat];
-  if(engine==='quoted'){
-    body.innerHTML=`<div class="big">${money(c.median)}</div>
-      <div class="band">most land ${money(c.p25)} to ${money(c.p75)}</div>
-      <div class="ctx">Priced from <b style="color:#fff">${c.n}</b> approved quotes of this type. Scope and quantity set the final figure.</div>
-      <span class="tag">${c.n} approved quotes</span>`;
+/* ═══════════════════════════════════════════
+   RENDER — REACTIVE BOTTOM PANEL
+   ═══════════════════════════════════════════ */
+function renderP(){
+  const p=$("price-panel");
+  if(S.tab==="quoted"){renderQP();return;}
+  const r=S.r;
+  if(r.comps.length===0){
+    p.innerHTML='<div class="pc-empty">Add a job item above to see an estimate</div>';
     return;
   }
-  let factor=1, condLines='';
-  c.conditions.forEach(cd=>{ if(sel[cd.key]){ factor*=cd.factor; condLines+=`<div><span>+ ${cd.label}</span><span class="mono">+${cd.pct}%</span></div>`; } });
-  const works=c.base*factor, wLo=works*c.band_lo, wHi=works*c.band_hi;
-  let addTotal=0, addLines='';
-  DATA.addons.forEach(a=>{ if(addSel[a.name]){ addTotal+=a.typical; addLines+=`<div><span>+ ${a.name}</span><span class="mono">${money(a.typical)}</span></div>`; } });
-  const total=works+addTotal, lo=wLo+addTotal, hi=wHi+addTotal;
-  body.innerHTML=`
-    <div class="big">${money(total)}</div>
-    <div class="band">likely range ${money(lo)} to ${money(hi)}</div>
-    <div class="breakdown">
-      <div><span>${c.category}, base works</span><span class="mono">${money(c.base)}</span></div>
-      ${condLines}
-      <div class="sub"><span>works subtotal</span><span class="mono">${money(works)}</span></div>
-      ${addLines}
-      <div class="gst"><span>total with GST</span><span class="mono">${money(total*1.1)}</span></div>
+  // Sum all components
+  const calcs=r.comps.map(calcRComp);
+  const total=calcs.reduce((s,c)=>s+c.tot,0);
+  const totalLo=calcs.reduce((s,c)=>s+c.totLo,0);
+  const totalHi=calcs.reduce((s,c)=>s+c.totHi,0);
+  const single=calcs.length===1?calcs[0]:null;
+  const dispEst=total, dispLo=totalLo, dispHi=totalHi;
+
+  let h=`<div class="pc-header" id="ptog">
+    <div class="pc-main">
+      <div class="pc-est-big">${fmt(dispEst)}</div>
+      <div class="pc-mid">${rng(dispLo,dispHi)}${single?" &middot; "+single.n.toLocaleString()+" similar jobs":""}</div>
     </div>
-    <div class="ctx">Base works for this type, adjusted for the characteristics ticked, with the standard add ons stacked on top.</div>
-    <span class="tag">${c.n.toLocaleString()} jobs on record</span>`;
+    <div class="pc-chev${S.rpx?" up":""}">${ICO.chev()}</div>
+  </div>`;
+
+  if(S.rpx){
+    h+='<div class="pc-body">';
+    if(calcs.length>1){
+      h+='<div class="pc-section">Items</div>';
+      r.comps.forEach((comp,i)=>{
+        const c=calcs[i];
+        const sys=M.reactive[comp.si];
+        h+=`<div class="pc-row"><span class="pc-lbl">${SYS_SHORT[sys.sys]||sys.sys}</span><span class="pc-val">${fmt(c.tot)}</span></div>`;
+      });
+      h+=`<div class="pc-row divider"><span class="pc-lbl" style="font-weight:600">Total</span><span class="pc-val" style="font-weight:700">${fmt(total)}</span></div>`;
+    } else if(single){
+      h+='<div class="pc-section">Breakdown</div>';
+      h+=`<div class="pc-row"><span class="pc-lbl">Base ${single.sys.sys}</span><span class="pc-val">${fmt(single.base)}</span></div>`;
+      single.factors.forEach(f=>{
+        const s=f.pct>=0?"+":"";
+        const cls=f.pct>=0?"up":"dn";
+        h+=`<div class="pc-row"><span class="pc-lbl">${f.lbl}</span><span class="pc-val ${cls}">${s}${f.pct}%</span></div>`;
+      });
+      h+=`<div class="pc-row divider"><span class="pc-lbl" style="font-weight:600">Core works</span><span class="pc-val" style="font-weight:700">${fmt(single.est)}</span></div>`;
+      h+=`<div class="pc-row" style="padding-top:2px"><span class="pc-lbl" style="font-size:12px;color:var(--mute)">Range</span><span class="pc-val" style="font-size:12px;font-weight:500;color:var(--mute)">${rng(single.lo,single.hi)}</span></div>`;
+      if(single.addons.length>0){
+        h+='<div class="pc-section">Add-ons</div>';
+        single.addons.forEach(a=>{ h+=`<div class="pc-row"><span class="pc-lbl">${a.name}</span><span class="pc-val up">+${fmt(a.amt)}</span></div>`; });
+        h+=`<div class="pc-total"><span class="pc-total-lbl">Total</span><span class="pc-total-val">${fmt(single.tot)}</span></div>`;
+        h+=`<div class="pc-total-range">${rng(single.totLo,single.totHi)}</div>`;
+      }
+    }
+    h+=`<div class="pc-footnote">Weighted jobs Jan 2023 to Jun 2026. Range covers the middle band of actual invoiced prices. Guide for staff only, not a binding quote.</div>`;
+    h+="</div>";
+  }
+  p.innerHTML=h;
+  $("ptog")?.addEventListener("click",()=>{S.rpx=!S.rpx;renderP();});
 }
 
-const RM=DATA.reline_model;
-function renderReline(){
-  const m=+$('#metreSlider').value; $('#metreNum').textContent=m;
-  $('#relineOut').textContent=money(RM.setup+RM.per_metre*m);
-  $('#relineFormula').textContent=`${money(RM.setup)} set up + ${money(RM.per_metre)} per metre x ${m} m`;
+/* ═══════════════════════════════════════════
+   RENDER — QUOTED MAIN
+   ═══════════════════════════════════════════ */
+function renderQ(){
+  const q=S.q;
+  let h="";
+  if(q.comps.length===0){
+    h+=`<div class="empty">
+      <div class="empty-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <rect x="2" y="2" width="18" height="18" rx="4" stroke="var(--mute)" stroke-width="1.5"/>
+        <path d="M11 7V15M7 11H15" stroke="var(--mute)" stroke-width="1.5" stroke-linecap="round"/>
+      </svg></div>
+      <div class="empty-title">No components yet</div>
+      <div class="empty-body">Add each distinct piece of work. The tool sums them and shows making-good as a subcontracted pass-through.</div>
+    </div>`;
+  } else {
+    h+='<p class="slabel">Components</p><div class="comp-list">';
+    q.comps.forEach((comp,idx)=>{
+      const calc=calcComp(comp);
+      const isMG=comp.wt==="Making good (remedial finishes)";
+      const isOther=comp.wt==="Other";
+      const wtData=M.quoted.find(d=>d.wt===comp.wt);
+      const isMed=wtData?.conf==="medium";
+      let priceH="";
+      if(isMG){
+        priceH=`<div class="comp-sub-notice">Subcontracted &mdash; get a separate trade quote.</div>`;
+      } else if(isOther||!calc){
+        priceH=`<div style="color:var(--mute);font-size:14px;margin-top:8px">No model data &mdash; price manually</div>`;
+      } else {
+        const confH=isMed?`<span class="cbadge med">Medium confidence</span>`:"";
+        if(calc.useReline){
+          priceH=`<div class="c-est">${rng(calc.lo,calc.hi)}${confH}</div>
+            <div class="c-range">length estimate around ${fmt(calc.est)}</div>
+            <div class="comp-price-warn">${ICO.warn()} Low confidence &mdash; length explains only 20% of relining price variation.</div>`;
+        } else {
+          priceH=`<div class="c-est">${fmt(calc.est)}${confH}</div>
+            <div class="c-range">${rng(calc.lo,calc.hi)}</div>`;
+        }
+      }
+      let chips="";
+      if(comp.chars.size>0||comp.m){
+        chips='<div class="chips">';
+        const wtD=M.quoted.find(d=>d.wt===comp.wt);
+        comp.chars.forEach(ck=>{
+          const cond=wtD?.conds.find(c=>c.k===ck);
+          const lbl=cond?cond.lbl:ck;
+          chips+=`<span class="chip">${lbl.length>30?lbl.slice(0,28)+"…":lbl}</span>`;
+        });
+        if(comp.m) chips+=`<span class="chip">${comp.m}m</span>`;
+        chips+="</div>";
+      }
+      h+=`<div class="comp-card">
+        <div class="comp-hdr">
+          <div>
+            <div class="comp-num">Component ${idx+1}</div>
+            <div class="comp-type">${comp.wt}</div>
+          </div>
+          <div class="comp-btns">
+            <button class="icon-btn" data-a="q-edit" data-id="${comp.id}">${ICO.edit()}</button>
+            <button class="icon-btn" data-a="q-del"  data-id="${comp.id}">${ICO.del()}</button>
+          </div>
+        </div>
+        ${priceH}${chips}
+      </div>`;
+    });
+    h+="</div>";
+  }
+  h+=`<button class="add-btn" data-a="open-qmo">${ICO.plus()} Add component</button>`;
+  h+='<div class="scroll-pad"></div>';
+  $("vq").innerHTML=h;
 }
-$('#metreSlider').oninput=renderReline;
-const relC=DATA.quoted.find(q=>q.category==='Pipe relining');
-$('#rel-n').textContent=RM.n; $('#rel-r2').textContent=Math.round(RM.r2*100)+'%';
-$('#rel-med').textContent=money(relC.median); $('#rel-band').textContent=money(relC.p25)+' and '+money(relC.p75);
 
-$('#wlBody').innerHTML=DATA.winloss.map(w=>`<tr><td>${w.category}<div class="winbar"><span style="width:${w.win_rate}%"></span></div></td>
-    <td class="num">${w.approved}</td><td class="num">${w.rejected}</td><td class="num">${w.pending}</td><td class="num">${w.win_rate}%</td></tr>`).join('');
-$('#o-win').textContent=DATA.overall_winrate+'%';
-$('#o-rej').textContent=DATA.status_counts.Rejected;
-$('#o-pend').textContent=(DATA.status_counts['Pending Approval']+DATA.status_counts['In Progress']).toLocaleString();
+/* ═══════════════════════════════════════════
+   RENDER — QUOTED BOTTOM PANEL
+   ═══════════════════════════════════════════ */
+function renderQP(){
+  const p=$("price-panel");
+  const q=S.q;
+  if(q.comps.length===0){
+    p.innerHTML='<div class="pc-empty">Add components above to see a total</div>';
+    return;
+  }
+  let total=0;
+  const notes=[],rows=[];
+  let hasMG=false,hasOther=false,hasReline=false;
+  q.comps.forEach((comp,i)=>{
+    if(comp.wt==="Making good (remedial finishes)"){
+      hasMG=true;
+      rows.push({lbl:"Making good",val:"Subcontracted",muted:true});
+    } else if(comp.wt==="Other"){
+      hasOther=true;
+      rows.push({lbl:comp.wt,val:"Manual",muted:true});
+    } else {
+      const c=calcComp(comp);
+      if(c){
+        total+=c.est;
+        rows.push({lbl:comp.wt,val:fmt(c.est),muted:false});
+        if(comp.wt==="Sewer relining"&&comp.m) hasReline=true;
+      }
+    }
+  });
+  if(hasMG)     notes.push("Excl. making good");
+  if(hasOther)  notes.push("Excl. unpriced items");
+  if(hasReline) notes.push("Relining est. low confidence");
 
-renderCats(); renderConditions(); renderAddons(); renderReadout(); renderReline();
+  let h=`<div class="pc-header" id="qptog">
+    <div class="pc-main">
+      <div class="pc-est-big">${fmt(total)}</div>
+      ${notes.length?`<div class="pc-mid" style="color:var(--amber)">*${notes.join(" · ")}</div>`:""}
+    </div>
+    <div class="pc-chev${S.qpx?" up":""}">${ICO.chev()}</div>
+  </div>`;
+
+  if(S.qpx){
+    h+='<div class="pc-body">';
+    rows.forEach(r=>{
+      h+=`<div class="pc-row"><span class="pc-lbl${r.muted?" style=\"color:var(--mute)\"":""}">${r.lbl}</span><span class="pc-val${r.muted?" style=\"color:var(--mute)\"":""}">${r.val}</span></div>`;
+    });
+    if(rows.length>1){
+      h+=`<div class="pc-row divider"><span class="pc-lbl" style="font-weight:600">Total (priced work)</span><span class="pc-val" style="font-weight:700">${fmt(total)}</span></div>`;
+    }
+    h+="</div>";
+  }
+  p.innerHTML=h;
+  $("qptog")?.addEventListener("click",()=>{S.qpx=!S.qpx;renderQP();});
+}
+
+/* ═══════════════════════════════════════════
+   MODAL — SHARED OPEN/CLOSE
+   ═══════════════════════════════════════════ */
+function openModal(type,comp){
+  S.mt=type;
+  if(type==="r"){
+    const mo=S.rmo;
+    if(comp){
+      mo.eid=comp.id;mo.si=comp.si;mo.act=comp.act;
+      mo.chars=new Set(comp.chars);mo.addons=new Set(comp.addons);mo.asbestos=comp.asbestos;
+    } else {
+      mo.eid=null;mo.si=null;mo.act=null;
+      mo.chars=new Set();mo.addons=new Set();mo.asbestos=false;
+    }
+    $("m-title").textContent=comp?"Edit job item":"Add job item";
+  } else {
+    const mo=S.qmo;
+    if(comp){
+      mo.eid=comp.id;mo.wt=comp.wt;mo.m=comp.m||"";mo.chars=new Set(comp.chars);
+    } else {
+      mo.eid=null;mo.wt=null;mo.m="";mo.chars=new Set();
+    }
+    $("m-title").textContent=comp?"Edit component":"Add component";
+  }
+  $("overlay").classList.add("open");
+  $("modal").classList.add("open");
+  S.mt==="r"?renderRMo():renderQMo();
+}
+
+function closeModal(){
+  $("overlay").classList.remove("open");
+  $("modal").classList.remove("open");
+}
+
+/* ═══════════════════════════════════════════
+   MODAL — REACTIVE CONTENT
+   ═══════════════════════════════════════════ */
+function renderRMo(){
+  const mo=S.rmo;
+  const sys=mo.si!==null?M.reactive[mo.si]:null;
+  const visConds=sys?sys.conds.filter(c=>c.k!=="diagnosis_only"):[];
+  const hasDiag=sys?sys.conds.some(c=>c.k==="diagnosis_only"):false;
+  let h="";
+
+  h+='<p class="slabel" style="margin-top:0">System</p><div class="sys-grid">';
+  M.reactive.forEach((s,i)=>{
+    const sel=mo.si===i?"sel":"";
+    h+=`<button class="sys-btn ${sel}" data-a="r-sys" data-i="${i}">
+      <span class="sys-name">${SYS_SHORT[s.sys]||s.sys}</span>
+      <span class="sys-n">${s.n.toLocaleString()} jobs</span>
+    </button>`;
+  });
+  h+="</div>";
+
+  if(sys){
+    h+='<p class="slabel" style="margin-top:20px">What was done?</p><div class="rlist">';
+    ACTIONS.forEach(a=>{
+      const sel=mo.act===a.k?"sel":"";
+      let sub="";
+      if(a.k==="diagnose"){
+        if(hasDiag){
+          const d=sys.conds.find(c=>c.k==="diagnosis_only");
+          sub=`<span class="rsub">Reduces estimate by ${Math.abs(d.pct)}% for this system</span>`;
+        } else {
+          sub='<span class="rsub">No price adjustment for this system in the model</span>';
+        }
+      }
+      h+=`<div class="rrow ${sel}" data-a="r-act" data-k="${a.k}">
+        <div class="rind"><div class="rdot"></div></div>
+        <div class="tcontent"><span class="rlabel">${a.l}</span>${sub}</div>
+      </div>`;
+    });
+    h+="</div>";
+
+    if(visConds.length>0){
+      h+='<p class="slabel" style="margin-top:20px">Characteristics that apply</p><div class="tlist">';
+      visConds.forEach(c=>{
+        const chk=mo.chars.has(c.k)?"chk":"";
+        const sign=c.pct>=0?"+":"";
+        h+=`<div class="trow ${chk}" data-a="r-char" data-k="${c.k}">
+          <div class="chkbox">${chk?ICO.chk():""}</div>
+          <div class="tcontent">
+            <span class="tlabel">${c.lbl}</span>
+            <span class="tsub">${sign}${c.pct}% to core estimate</span>
+          </div>
+        </div>`;
+      });
+      h+="</div>";
+    } else if(sys.conds.length===0){
+      h+=`<div class="warn" style="margin-top:12px"><div class="warn-body">No model characteristics for this system. Fixed base estimate: ${fmt(sys.base)}.</div></div>`;
+    }
+
+    h+='<p class="slabel" style="margin-top:20px">Add-ons and line items</p><div class="tlist">';
+    M.addons.forEach(a=>{
+      const chk=mo.addons.has(a.k)?"chk":"";
+      h+=`<div class="trow ${chk}" data-a="r-addon" data-k="${a.k}">
+        <div class="chkbox">${chk?ICO.chk():""}</div>
+        <div class="tcontent"><span class="tlabel">${a.name}</span></div>
+        <span class="tprice">+${fmt(a.amt)}</span>
+      </div>`;
+    });
+    h+="</div>";
+
+    h+='<p class="slabel" style="margin-top:20px">Safety</p><div class="tlist">';
+    const abChk=mo.asbestos?"chk":"";
+    h+=`<div class="trow ${abChk}" data-a="r-asb">
+      <div class="chkbox">${abChk?ICO.chk():""}</div>
+      <div class="tcontent">
+        <span class="tlabel">Pre-1987 building or possible asbestos</span>
+        <span class="tsub">Raises a safety flag on the item card &mdash; no price change</span>
+      </div>
+    </div></div>`;
+  }
+  h+='<div class="scroll-pad"></div>';
+  $("m-body").innerHTML=h;
+
+  // Footer: live price preview + save
+  const canSave=mo.si!==null;
+  let footH="";
+  if(canSave){
+    const preview=calcRComp({si:mo.si,act:mo.act,chars:mo.chars,addons:mo.addons,asbestos:false});
+    const hasA=preview.addonAmt>0;
+    const dE=hasA?preview.tot:preview.est;
+    const dLo=hasA?preview.totLo:preview.lo;
+    const dHi=hasA?preview.totHi:preview.hi;
+    footH+=`<div style="padding:8px 0 10px;border-bottom:1px solid var(--border);margin-bottom:10px">
+      <div style="font-size:20px;font-weight:700;color:var(--text)">${fmt(dE)}</div>
+      <div style="font-size:13px;color:var(--mute)">${rng(dLo,dHi)} &middot; ${preview.n.toLocaleString()} similar jobs</div>
+    </div>`;
+  }
+  footH+=`<button class="btn-pri" id="m-save" ${canSave?"":"disabled"}>${mo.eid!==null?"Update item":"Add item"}</button>`;
+  $("m-foot").innerHTML=footH;
+}
+
+/* ═══════════════════════════════════════════
+   MODAL — QUOTED CONTENT
+   ═══════════════════════════════════════════ */
+function renderQMo(){
+  const mo=S.qmo;
+  const isMG=mo.wt==="Making good (remedial finishes)";
+  const isOther=mo.wt==="Other";
+  const isReline=mo.wt==="Sewer relining";
+  const wtData=mo.wt?M.quoted.find(d=>d.wt===mo.wt):null;
+  let h="";
+
+  h+='<p class="slabel" style="margin-top:0">Work type</p><div class="rlist">';
+  WTS.forEach(t=>{
+    const sel=mo.wt===t?"sel":"";
+    const d=M.quoted.find(q=>q.wt===t);
+    let badge="";
+    if(d?.conf==="medium") badge='<span class="cbadge med">Medium confidence</span>';
+    if(t==="Making good (remedial finishes)") badge='<span class="cbadge sub">Subcontracted</span>';
+    h+=`<div class="rrow ${sel}" data-a="q-type" data-t="${t}">
+      <div class="rind"><div class="rdot"></div></div>
+      <div class="tcontent"><span class="rlabel">${t}</span>${badge}</div>
+    </div>`;
+  });
+  h+="</div>";
+
+  if(mo.wt&&!isMG&&!isOther){
+    if(isReline){
+      h+=`<p class="slabel" style="margin-top:20px">Length of pipe (optional)</p>
+        <input type="number" id="m-inp" class="text-inp" placeholder="Enter metres if known, e.g. 24" value="${mo.m}" inputmode="decimal" min="0">`;
+      const mVal=parseFloat(mo.m);
+      if(mo.m&&mVal>0){
+        const relineEst=M.reline.setup+M.reline.per_m*mVal;
+        const baseEst=M.quoted.find(d=>d.wt==="Sewer relining")?.base||5543;
+        h+=`<div class="reline-warn" style="margin-top:12px">
+          <div class="reline-warn-title">${ICO.warn()} Low confidence estimate</div>
+          <div class="reline-warn-body">The length model explains only 1 in 5 of real price differences for sewer relining. Junction count, pipe access, ground conditions, and connection complexity drive most of the cost. The owner must review before the quote is sent.</div>
+          <div class="reline-est-box">
+            <div class="reline-est-row"><span class="reline-est-label">Length model (${mVal}m &times; $${M.reline.per_m} + $${M.reline.setup.toLocaleString()})</span><span class="reline-est-val">${fmt(relineEst)}</span></div>
+            <div class="reline-est-row"><span class="reline-est-label">Base rate model (no length)</span><span class="reline-est-val">${fmt(baseEst)}</span></div>
+          </div>
+        </div>`;
+      } else {
+        h+=`<div class="warn" style="margin-top:10px"><div class="warn-body">No metres entered &mdash; base rate of ${fmt(M.quoted.find(d=>d.wt==="Sewer relining")?.base||5543)} is used. Enter metres for a length estimate (note: length model is weak).</div></div>`;
+      }
+    }
+    if(wtData&&wtData.conds.length>0){
+      h+='<p class="slabel" style="margin-top:20px">Characteristics that apply</p><div class="tlist">';
+      wtData.conds.forEach(c=>{
+        const chk=mo.chars.has(c.k)?"chk":"";
+        const pct=Math.round((c.f-1)*100);
+        const sign=pct>=0?"+":"";
+        h+=`<div class="trow ${chk}" data-a="q-char" data-k="${c.k}">
+          <div class="chkbox">${chk?ICO.chk():""}</div>
+          <div class="tcontent">
+            <span class="tlabel">${c.lbl}</span>
+            <span class="tsub" style="${pct<0?"color:var(--amber)":""}">${sign}${pct}% to estimate</span>
+          </div>
+        </div>`;
+      });
+      h+="</div>";
+    } else if(wtData){
+      h+=`<div class="warn" style="margin-top:16px"><div class="warn-body">No model characteristics for this type. Base estimate: ${fmt(wtData.base)}.${wtData.conf==="medium"?` Only ${wtData.n} historical jobs.`:""}</div></div>`;
+    }
+    if(wtData?.conf==="medium"){
+      h+=`<div class="warn" style="margin-top:12px"><div class="warn-title">${ICO.warn()} Medium confidence</div><div class="warn-body">Only ${wtData.n} historical jobs. Confirm with the owner before using.</div></div>`;
+    }
+  }
+  if(isMG){
+    h+=`<div class="warn" style="margin-top:16px"><div class="warn-title">Subcontracted pass-through</div><div class="warn-body">Making good is subcontracted. Get a separate trade quote and add it manually.</div></div>`;
+  }
+  h+='<div class="scroll-pad"></div>';
+  $("m-body").innerHTML=h;
+
+  // Footer: price preview + save
+  let footH="";
+  const canSave=mo.wt!==null;
+  if(canSave&&!isMG&&!isOther&&wtData){
+    const mVal=parseFloat(mo.m);
+    const useRL=(isReline&&mo.m&&mVal>0);
+    let previewEst=wtData.base;
+    wtData.conds.forEach(c=>{if(mo.chars.has(c.k)) previewEst*=c.f;});
+    if(useRL) previewEst=M.reline.setup+M.reline.per_m*mVal;
+    const pLo=Math.round((useRL?previewEst:previewEst)*wtData.lo);
+    const pHi=Math.round((useRL?previewEst:previewEst)*wtData.hi);
+    footH+=`<div style="padding:8px 0 10px;border-bottom:1px solid var(--border);margin-bottom:10px">
+      <div style="font-size:20px;font-weight:700;color:var(--text)">${fmt(Math.round(previewEst))}</div>
+      <div style="font-size:13px;color:var(--mute)">${rng(pLo,pHi)}${useRL?" &middot; low confidence":""}</div>
+    </div>`;
+  }
+  footH+=`<button class="btn-pri" id="m-save" ${canSave?"":"disabled"}>${mo.eid!==null?"Update component":"Add component"}</button>`;
+  $("m-foot").innerHTML=footH;
+
+  const mi=$("m-inp");
+  if(mi){
+    mi.addEventListener("input",e=>{S.qmo.m=e.target.value;renderQMo();});
+    if(document.activeElement!==mi){mi.focus();}
+  }
+}
+
+/* ═══════════════════════════════════════════
+   EVENTS — main app
+   ═══════════════════════════════════════════ */
+$("app").addEventListener("click",e=>{
+  const el=e.target.closest("[data-a]");
+  if(!el) return;
+  const a=el.dataset.a;
+  if(a==="open-rmo"){openModal("r",null);}
+  else if(a==="r-edit"){const c=S.r.comps.find(x=>x.id===parseInt(el.dataset.id));if(c)openModal("r",c);}
+  else if(a==="r-del"){S.r.comps=S.r.comps.filter(x=>x.id!==parseInt(el.dataset.id));renderR();renderP();}
+  else if(a==="open-qmo"){openModal("q",null);}
+  else if(a==="q-edit"){const c=S.q.comps.find(x=>x.id===parseInt(el.dataset.id));if(c)openModal("q",c);}
+  else if(a==="q-del"){S.q.comps=S.q.comps.filter(x=>x.id!==parseInt(el.dataset.id));renderQ();renderQP();}
+});
+
+/* ═══════════════════════════════════════════
+   EVENTS — modal body (reactive + quoted)
+   ═══════════════════════════════════════════ */
+$("overlay").addEventListener("click",closeModal);
+$("m-close").addEventListener("click",closeModal);
+
+$("modal").addEventListener("click",e=>{
+  const el=e.target.closest("[data-a]");
+  if(!el) return;
+  const a=el.dataset.a;
+  if(S.mt==="r"){
+    if(a==="r-sys"){
+      S.rmo.si=parseInt(el.dataset.i);
+      S.rmo.chars=new Set();S.rmo.act=null;S.rmo.addons=new Set();
+      renderRMo();
+    }
+    else if(a==="r-act"){S.rmo.act=el.dataset.k;renderRMo();}
+    else if(a==="r-char"){const k=el.dataset.k;S.rmo.chars.has(k)?S.rmo.chars.delete(k):S.rmo.chars.add(k);renderRMo();}
+    else if(a==="r-addon"){const k=el.dataset.k;S.rmo.addons.has(k)?S.rmo.addons.delete(k):S.rmo.addons.add(k);renderRMo();}
+    else if(a==="r-asb"){S.rmo.asbestos=!S.rmo.asbestos;renderRMo();}
+  } else {
+    if(a==="q-type"){S.qmo.wt=el.dataset.t;S.qmo.chars=new Set();S.qmo.m="";renderQMo();}
+    else if(a==="q-char"){const k=el.dataset.k;S.qmo.chars.has(k)?S.qmo.chars.delete(k):S.qmo.chars.add(k);renderQMo();}
+  }
+});
+
+$("m-foot").addEventListener("click",e=>{
+  if(e.target.id!=="m-save") return;
+  if(S.mt==="r"){
+    const mo=S.rmo;
+    if(mo.si===null) return;
+    const comp={id:mo.eid??S.r.nid++,si:mo.si,act:mo.act,chars:new Set(mo.chars),addons:new Set(mo.addons),asbestos:mo.asbestos};
+    if(mo.eid!==null){const i=S.r.comps.findIndex(c=>c.id===mo.eid);if(i>=0)S.r.comps[i]=comp;}
+    else S.r.comps.push(comp);
+    closeModal();renderR();renderP();
+  } else {
+    const mo=S.qmo;
+    if(!mo.wt) return;
+    const comp={id:mo.eid??S.q.nid++,wt:mo.wt,m:mo.m,chars:new Set(mo.chars)};
+    if(mo.eid!==null){const i=S.q.comps.findIndex(c=>c.id===mo.eid);if(i>=0)S.q.comps[i]=comp;}
+    else S.q.comps.push(comp);
+    closeModal();renderQ();renderQP();
+  }
+});
+
+/* ═══════════════════════════════════════════
+   EVENTS — tabs
+   ═══════════════════════════════════════════ */
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    S.tab=btn.dataset.tab;S.rpx=false;S.qpx=false;
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    $("vr").style.display=S.tab==="reactive"?"":"none";
+    $("vq").style.display=S.tab==="quoted"?"":"none";
+    renderP();
+  });
+});
+
+/* ═══════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════ */
+renderR();renderQ();renderP();
 </script>
 </body>
 </html>
