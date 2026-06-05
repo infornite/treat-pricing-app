@@ -1,0 +1,1853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Treat Plumbing — Revenue</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+       background: #eef0f4; color: #222; }
+
+header { background: #0f3460; color: #fff; padding: 16px 32px;
+         display: flex; justify-content: space-between; align-items: center; }
+header h1 { font-size: 1.05rem; font-weight: 600; }
+header p  { font-size: 0.74rem; opacity: 0.6; }
+
+.kpi-row { display: grid; grid-template-columns: repeat(3, 1fr);
+           gap: 12px; padding: 18px 32px 0; }
+.kpi { background: #fff; border-radius: 10px; padding: 18px 22px;
+       box-shadow: 0 1px 3px rgba(0,0,0,.08); border-top: 3px solid #ccc; }
+.kpi .lbl  { font-size: 0.69rem; text-transform: uppercase; letter-spacing: .08em;
+             color: #aaa; margin-bottom: 5px; }
+.kpi .amt  { font-size: 1.65rem; font-weight: 700; }
+.kpi .grw  { font-size: 0.79rem; font-weight: 600; margin-top: 4px; }
+.kpi .sub  { font-size: 0.72rem; color: #bbb; margin-top: 2px; }
+.up   { color: #22a06b; }
+.down { color: #e34935; }
+.neu  { color: #aaa; }
+
+.card { background: #fff; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.08);
+        margin: 14px 32px 0; padding: 20px 24px; position: relative; }
+.card h2 { font-size: 0.86rem; font-weight: 600; color: #555; margin-bottom: 12px; }
+
+.ctrls { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap;
+         align-items: center; }
+.ctrls .sep { width: 1px; height: 20px; background: #ddd; margin: 0 4px; }
+.btn { padding: 5px 13px; border-radius: 18px; border: 1.5px solid #ccc;
+       background: #fff; color: #666; font-size: 0.74rem; cursor: pointer;
+       font-weight: 500; transition: all .12s; }
+.btn:hover { border-color: #0f3460; color: #0f3460; }
+.btn.on  { background: #0f3460; color: #fff; border-color: #0f3460; }
+.btn.on.c24 { background: #c0623a; border-color: #c0623a; }
+.btn.on.c25 { background: #0f3460; border-color: #0f3460; }
+.btn.on.c26 { background: #16a085; border-color: #16a085; }
+.btn:disabled { opacity: 0.4; cursor: default; }
+
+.wrap-main { position: relative; height: 340px; }
+.wrap-sub  { position: relative; height: 290px; }
+
+/* Drill-down delta panels */
+.dd-charts { display: grid; gap: 16px; margin-top: 4px; }
+.dd-charts.two-comp { grid-template-columns: 1fr 1fr; }
+.dd-charts.one-comp { grid-template-columns: 1fr; }
+.dd-panel h4 { font-size: 0.8rem; font-weight: 600; margin-bottom: 10px;
+               padding: 5px 10px; border-radius: 6px; display: inline-block; }
+.dd-panel h4.up   { background: rgba(34,160,107,0.12); color: #176b44; }
+.dd-panel h4.down { background: rgba(227,73,53,0.12);  color: #9b2919; }
+.dd-panel h4.flat { background: rgba(100,100,100,0.08); color: #555; }
+.wrap-dd-sub { position: relative; height: 320px; }
+
+.drilldown { background: #fff; border-radius: 10px;
+             box-shadow: 0 1px 3px rgba(0,0,0,.08);
+             margin: 14px 32px 0; padding: 20px 24px; display: none; }
+.drilldown.open { display: block; }
+.dd-top { display: flex; justify-content: space-between; align-items: flex-start;
+          margin-bottom: 14px; }
+.dd-top h3 { font-size: 0.9rem; font-weight: 600; color: #333; }
+.dd-fys { display: flex; gap: 18px; margin-top: 6px; flex-wrap: wrap; }
+.dd-fy  { font-size: 0.78rem; }
+.dd-close { background: none; border: 1px solid #ddd; border-radius: 6px;
+            width: 28px; height: 28px; font-size: 1rem; color: #999; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; }
+.dd-close:hover { color: #333; background: #f5f5f5; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+           margin: 14px 32px 28px; }
+.two-col .card { margin: 0; }
+
+.exp-btn { position: absolute; top: 14px; right: 16px; background: transparent;
+           border: 1px solid #e0e0e0; border-radius: 5px; width: 26px; height: 26px;
+           cursor: pointer; font-size: 0.78rem; color: #bbb; display: flex;
+           align-items: center; justify-content: center; }
+.exp-btn:hover { background: #f0f2f5; color: #555; }
+
+.backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; }
+.backdrop.on { display: block; }
+.card.expanded { position: fixed; inset: 20px; z-index: 300; border-radius: 12px;
+                 overflow: auto; margin: 0; display: flex; flex-direction: column; }
+.card.expanded .wrap-sub { flex: 1; height: unset; }
+
+.note { font-size: 0.69rem; color: #bbb; margin-top: 9px; }
+footer { text-align: center; padding: 16px; font-size: 0.68rem; color: #ccc; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Treat Plumbing &mdash; Revenue</h1>
+  <p>Financial year basis &nbsp;|&nbsp; ex-GST &nbsp;|&nbsp; June 2026 is a forecast</p>
+</header>
+
+<div class="kpi-row" id="kpi-row"></div>
+
+<div class="card">
+  <h2>Monthly Revenue &mdash; Financial Year Comparison</h2>
+  <div class="ctrls" id="main-ctrls">
+    <button class="btn on c24" data-fy="2024">FY24</button>
+    <button class="btn on c25" data-fy="2025">FY25</button>
+    <button class="btn on c26" data-fy="2026">FY26</button>
+    <div class="sep"></div>
+    <button class="btn on" data-view="revenue">Revenue</button>
+    <button class="btn"    data-view="pct">FY change %</button>
+    <div class="sep"></div>
+    <button class="btn on" data-split="total">Total</button>
+    <button class="btn"    data-split="split">Reactive / Quoted</button>
+  </div>
+  <div class="wrap-main"><canvas id="mainChart"></canvas></div>
+  <p class="note">X-axis = Jul to Jun. Click any month to see what is driving it. Faded bar = June 2026 forecast.</p>
+</div>
+
+<div class="drilldown" id="drilldown">
+  <div class="dd-top">
+    <div>
+      <h3 id="dd-title">Month breakdown</h3>
+      <div class="dd-fys" id="dd-fys"></div>
+    </div>
+    <button class="dd-close" onclick="closeDrilldown()">&#x2715;</button>
+  </div>
+  <div class="dd-charts" id="dd-charts">
+    <div class="dd-panel" id="dd-panel-a">
+      <h4 id="dd-title-a"></h4>
+      <div class="wrap-dd-sub"><canvas id="ddChartA"></canvas></div>
+    </div>
+    <div class="dd-panel" id="dd-panel-b" style="display:none">
+      <h4 id="dd-title-b"></h4>
+      <div class="wrap-dd-sub"><canvas id="ddChartB"></canvas></div>
+    </div>
+  </div>
+  <p class="note" id="dd-note"></p>
+</div>
+
+<div class="two-col">
+  <div class="card" id="card-ann">
+    <button class="exp-btn" onclick="toggleExpand('card-ann','annChart')" title="Expand">&#x26F6;</button>
+    <h2>FY Annual Summary</h2>
+    <div class="wrap-sub"><canvas id="annChart"></canvas></div>
+    <p class="note">FY26 includes June 2026 forecast (faded segment). Click &#x26F6; to enlarge.</p>
+  </div>
+  <div class="card" style="background:#f8f9fb">
+    <h2>How to use this dashboard</h2>
+    <div style="font-size:0.77rem;color:#666;line-height:1.7;margin-top:4px">
+      <p style="margin-bottom:8px">
+        <strong>Primary chart</strong> always shows Jul to Jun on the x-axis.
+        Toggle FY24, FY25 and FY26 to overlay or compare years. Switch to
+        <em>FY change %</em> to see each year as a percentage move on the one before it.
+      </p>
+      <p style="margin-bottom:8px">
+        <strong>Drill-down</strong> &mdash; click any month bar to open the breakdown
+        panel. It shows revenue by reactive system (sewer, hot water, etc.) and by
+        quoted work type for each active FY, so you can see what drove a strong or
+        weak month.
+      </p>
+      <p style="margin-bottom:8px">
+        <strong>FY definition</strong> &mdash; FY24 = Jul 2023 to Jun 2024;
+        FY25 = Jul 2024 to Jun 2025; FY26 = Jul 2025 to Jun 2026.
+      </p>
+      <p>
+        <strong>Revenue</strong> = Task Invoices Total Ex (ex-GST).
+        Won quotes are counted once, on their completion date.
+        Reactive = everything else.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="backdrop" id="backdrop" onclick="collapseAll()"></div>
+<footer>Treat Plumbing &nbsp;|&nbsp; Jan 2023 to Jun 2026 &nbsp;|&nbsp; <span id="fc-note"></span></footer>
+
+<script>
+const DATA = {
+  "fy_months": [
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun"
+  ],
+  "fy_annual": {
+    "2024": {
+      "revenue": 3519782.46,
+      "actual": 3519782.46,
+      "forecast": 0.0,
+      "quoted": 1989178.78,
+      "reactive": 1530603.68,
+      "jobs": 2043,
+      "partial": false
+    },
+    "2025": {
+      "revenue": 3426874.63,
+      "actual": 3426874.63,
+      "forecast": 0.0,
+      "quoted": 2006346.96,
+      "reactive": 1420527.67,
+      "jobs": 2075,
+      "partial": false
+    },
+    "2026": {
+      "revenue": 3889827.22,
+      "actual": 3543915.8,
+      "forecast": 345911.42,
+      "quoted": 2200868.2,
+      "reactive": 1688959.02,
+      "jobs": 1899,
+      "partial": true
+    }
+  },
+  "monthly": {
+    "2024": [
+      {
+        "total": 281566.33,
+        "quoted": 143235.0,
+        "reactive": 138331.33,
+        "jobs": 153,
+        "forecast": false
+      },
+      {
+        "total": 272364.07,
+        "quoted": 140267.27,
+        "reactive": 132096.8,
+        "jobs": 184,
+        "forecast": false
+      },
+      {
+        "total": 248168.2,
+        "quoted": 130900.0,
+        "reactive": 117268.2,
+        "jobs": 146,
+        "forecast": false
+      },
+      {
+        "total": 344933.37,
+        "quoted": 225777.75,
+        "reactive": 119155.62,
+        "jobs": 158,
+        "forecast": false
+      },
+      {
+        "total": 412846.75,
+        "quoted": 296900.0,
+        "reactive": 115946.75,
+        "jobs": 163,
+        "forecast": false
+      },
+      {
+        "total": 225311.5,
+        "quoted": 98490.0,
+        "reactive": 126821.5,
+        "jobs": 149,
+        "forecast": false
+      },
+      {
+        "total": 262666.55,
+        "quoted": 122760.0,
+        "reactive": 139906.55,
+        "jobs": 155,
+        "forecast": false
+      },
+      {
+        "total": 266244.18,
+        "quoted": 149214.25,
+        "reactive": 117029.93,
+        "jobs": 153,
+        "forecast": false
+      },
+      {
+        "total": 233663.87,
+        "quoted": 156725.0,
+        "reactive": 76938.87,
+        "jobs": 143,
+        "forecast": false
+      },
+      {
+        "total": 273384.35,
+        "quoted": 128389.51,
+        "reactive": 144994.84,
+        "jobs": 198,
+        "forecast": false
+      },
+      {
+        "total": 328060.91,
+        "quoted": 200680.0,
+        "reactive": 127380.91,
+        "jobs": 205,
+        "forecast": false
+      },
+      {
+        "total": 370572.38,
+        "quoted": 195840.0,
+        "reactive": 174732.38,
+        "jobs": 236,
+        "forecast": false
+      }
+    ],
+    "2025": [
+      {
+        "total": 335504.1,
+        "quoted": 185645.0,
+        "reactive": 149859.1,
+        "jobs": 195,
+        "forecast": false
+      },
+      {
+        "total": 321004.1,
+        "quoted": 195300.0,
+        "reactive": 125704.1,
+        "jobs": 195,
+        "forecast": false
+      },
+      {
+        "total": 298342.26,
+        "quoted": 191430.0,
+        "reactive": 106912.26,
+        "jobs": 154,
+        "forecast": false
+      },
+      {
+        "total": 270962.54,
+        "quoted": 127654.09,
+        "reactive": 143308.45,
+        "jobs": 184,
+        "forecast": false
+      },
+      {
+        "total": 232668.64,
+        "quoted": 148461.82,
+        "reactive": 84206.82,
+        "jobs": 138,
+        "forecast": false
+      },
+      {
+        "total": 260457.73,
+        "quoted": 168909.54,
+        "reactive": 91548.19,
+        "jobs": 141,
+        "forecast": false
+      },
+      {
+        "total": 222210.18,
+        "quoted": 85566.36,
+        "reactive": 136643.82,
+        "jobs": 161,
+        "forecast": false
+      },
+      {
+        "total": 258766.36,
+        "quoted": 152926.36,
+        "reactive": 105840.0,
+        "jobs": 182,
+        "forecast": false
+      },
+      {
+        "total": 247478.64,
+        "quoted": 144103.64,
+        "reactive": 103375.0,
+        "jobs": 153,
+        "forecast": false
+      },
+      {
+        "total": 250883.33,
+        "quoted": 151993.33,
+        "reactive": 98890.0,
+        "jobs": 171,
+        "forecast": false
+      },
+      {
+        "total": 407346.3,
+        "quoted": 258836.82,
+        "reactive": 148509.48,
+        "jobs": 223,
+        "forecast": false
+      },
+      {
+        "total": 321250.45,
+        "quoted": 195520.0,
+        "reactive": 125730.45,
+        "jobs": 178,
+        "forecast": false
+      }
+    ],
+    "2026": [
+      {
+        "total": 368220.0,
+        "quoted": 211245.0,
+        "reactive": 156975.0,
+        "jobs": 195,
+        "forecast": false
+      },
+      {
+        "total": 370314.33,
+        "quoted": 175106.0,
+        "reactive": 195208.33,
+        "jobs": 218,
+        "forecast": false
+      },
+      {
+        "total": 390674.45,
+        "quoted": 226610.0,
+        "reactive": 164064.45,
+        "jobs": 198,
+        "forecast": false
+      },
+      {
+        "total": 320031.77,
+        "quoted": 171189.26,
+        "reactive": 148842.51,
+        "jobs": 182,
+        "forecast": false
+      },
+      {
+        "total": 395590.0,
+        "quoted": 269310.0,
+        "reactive": 126280.0,
+        "jobs": 174,
+        "forecast": false
+      },
+      {
+        "total": 271390.0,
+        "quoted": 156460.0,
+        "reactive": 114930.0,
+        "jobs": 133,
+        "forecast": false
+      },
+      {
+        "total": 246150.45,
+        "quoted": 122920.0,
+        "reactive": 123230.45,
+        "jobs": 151,
+        "forecast": false
+      },
+      {
+        "total": 268010.91,
+        "quoted": 136970.91,
+        "reactive": 131040.0,
+        "jobs": 165,
+        "forecast": false
+      },
+      {
+        "total": 348580.0,
+        "quoted": 209880.0,
+        "reactive": 138700.0,
+        "jobs": 183,
+        "forecast": false
+      },
+      {
+        "total": 218058.36,
+        "quoted": 119770.0,
+        "reactive": 98288.36,
+        "jobs": 138,
+        "forecast": false
+      },
+      {
+        "total": 346895.53,
+        "quoted": 205690.0,
+        "reactive": 141205.53,
+        "jobs": 162,
+        "forecast": false
+      },
+      {
+        "total": 345911.42,
+        "quoted": 195717.03,
+        "reactive": 150194.39,
+        "jobs": null,
+        "forecast": true
+      }
+    ]
+  },
+  "drilldown": {
+    "2024": [
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 40610.0,
+          "Hot water": 13755.0,
+          "Cold water supply": 12615.0,
+          "Fixtures and tapware": 7770.0,
+          "Stormwater and roof drainage": 420.0,
+          "Waterproofing and building envelope": 10390.0,
+          "Gas": 1300.0,
+          "Other": 3557.0
+        },
+        "quoted": {
+          "Sewer relining": 68995.0,
+          "Sewer excavation and replacement": 10500.0,
+          "Stormwater works": 9690.0,
+          "Shower and wet area waterproofing": 2230.0,
+          "Hot water plant": 8950.0,
+          "Gas": 7820.0,
+          "Water supply works": 11200.0,
+          "Preventative maintenance": 3920.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 37160.0,
+          "Hot water": 22410.0,
+          "Cold water supply": 13815.0,
+          "Fixtures and tapware": 9210.0,
+          "Stormwater and roof drainage": 6792.0,
+          "Waterproofing and building envelope": 13990.0,
+          "Gas": 1480.0,
+          "Compliance and certification": 1810.0,
+          "Other": 1840.0
+        },
+        "quoted": {
+          "Sewer relining": 26970.0,
+          "Sewer excavation and replacement": 25580.0,
+          "Stormwater works": 11990.0,
+          "Shower and wet area waterproofing": 5827.0,
+          "Hot water plant": 7950.0,
+          "Water supply works": 22320.0,
+          "Preventative maintenance": 8520.0,
+          "Other": 780.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 43100.0,
+          "Hot water": 18190.0,
+          "Cold water supply": 13710.0,
+          "Fixtures and tapware": 4580.0,
+          "Stormwater and roof drainage": 6358.0,
+          "Waterproofing and building envelope": 12590.0,
+          "Other": 780.0
+        },
+        "quoted": {
+          "Sewer relining": 31910.0,
+          "Sewer excavation and replacement": 24890.0,
+          "Stormwater works": 14770.0,
+          "Shower and wet area waterproofing": 7990.0,
+          "Hot water plant": 3360.0,
+          "Water supply works": 26210.0,
+          "Preventative maintenance": 12760.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 35685.0,
+          "Hot water": 24490.0,
+          "Cold water supply": 18450.0,
+          "Fixtures and tapware": 9925.0,
+          "Stormwater and roof drainage": 2690.0,
+          "Waterproofing and building envelope": 11465.0,
+          "Gas": 2380.0,
+          "Other": 1374.0
+        },
+        "quoted": {
+          "Sewer relining": 41028.0,
+          "Sewer excavation and replacement": 76250.0,
+          "Stormwater works": 37160.0,
+          "Shower and wet area waterproofing": 5910.0,
+          "Hot water plant": 9740.0,
+          "Gas": 5750.0,
+          "Water supply works": 31680.0,
+          "Preventative maintenance": 5780.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 33005.0,
+          "Hot water": 11670.0,
+          "Cold water supply": 18100.0,
+          "Fixtures and tapware": 3470.0,
+          "Stormwater and roof drainage": 9960.0,
+          "Waterproofing and building envelope": 19260.0,
+          "Gas": 6980.0,
+          "Other": 2932.0
+        },
+        "quoted": {
+          "Sewer relining": 4950.0,
+          "Sewer excavation and replacement": 120410.0,
+          "Stormwater works": 17120.0,
+          "Shower and wet area waterproofing": 17680.0,
+          "Hot water plant": 14230.0,
+          "Water supply works": 82790.0,
+          "Preventative maintenance": 4890.0,
+          "Other": 780.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 44835.0,
+          "Hot water": 9720.0,
+          "Cold water supply": 15970.0,
+          "Fixtures and tapware": 11370.0,
+          "Stormwater and roof drainage": 12110.0,
+          "Waterproofing and building envelope": 14020.0,
+          "Other": 420.0
+        },
+        "quoted": {
+          "Sewer relining": 12550.0,
+          "Sewer excavation and replacement": 17440.0,
+          "Stormwater works": 6290.0,
+          "Shower and wet area waterproofing": 2430.0,
+          "Water supply works": 12770.0,
+          "Preventative maintenance": 26840.0,
+          "Other": 1380.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 43030.0,
+          "Hot water": 25370.0,
+          "Cold water supply": 14850.0,
+          "Fixtures and tapware": 6620.0,
+          "Stormwater and roof drainage": 18480.0,
+          "Waterproofing and building envelope": 13087.0,
+          "Gas": 580.0,
+          "Compliance and certification": 780.0,
+          "Other": 320.0
+        },
+        "quoted": {
+          "Sewer relining": 16240.0,
+          "Sewer excavation and replacement": 26470.0,
+          "Stormwater works": 22640.0,
+          "Shower and wet area waterproofing": 4970.0,
+          "Water supply works": 24410.0,
+          "Preventative maintenance": 6120.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 40110.0,
+          "Hot water": 7330.0,
+          "Cold water supply": 6790.0,
+          "Fixtures and tapware": 8040.0,
+          "Stormwater and roof drainage": 18990.0,
+          "Waterproofing and building envelope": 13660.0,
+          "Other": 12342.0
+        },
+        "quoted": {
+          "Sewer relining": 5055.0,
+          "Sewer excavation and replacement": 18850.0,
+          "Stormwater works": 18700.0,
+          "Shower and wet area waterproofing": 5745.0,
+          "Compliance certification": 520.0,
+          "Hot water plant": 1580.0,
+          "Gas": 42345.0,
+          "Water supply works": 29840.0,
+          "Preventative maintenance": 2560.0,
+          "Other": 2950.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 20907.0,
+          "Hot water": 7590.0,
+          "Cold water supply": 11557.0,
+          "Fixtures and tapware": 8140.0,
+          "Stormwater and roof drainage": 9990.0,
+          "Waterproofing and building envelope": 12815.0,
+          "Compliance and certification": 1040.0,
+          "Other": 1460.0
+        },
+        "quoted": {
+          "Sewer relining": 46925.0,
+          "Sewer excavation and replacement": 14400.0,
+          "Stormwater works": 18510.0,
+          "Shower and wet area waterproofing": 14540.0,
+          "Hot water plant": 5870.0,
+          "Water supply works": 8390.0,
+          "Preventative maintenance": 20190.0,
+          "Other": 2380.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 42924.0,
+          "Hot water": 21350.0,
+          "Cold water supply": 15889.0,
+          "Fixtures and tapware": 11360.0,
+          "Stormwater and roof drainage": 19780.0,
+          "Waterproofing and building envelope": 14494.0,
+          "Gas": 4200.0,
+          "Compliance and certification": 520.0,
+          "Other": 1860.0
+        },
+        "quoted": {
+          "Sewer excavation and replacement": 26510.0,
+          "Stormwater works": 15690.0,
+          "Shower and wet area waterproofing": 25790.0,
+          "Hot water plant": 780.0,
+          "Water supply works": 33490.0,
+          "Preventative maintenance": 7660.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 40740.0,
+          "Hot water": 21160.0,
+          "Cold water supply": 21411.0,
+          "Fixtures and tapware": 5700.0,
+          "Stormwater and roof drainage": 10060.0,
+          "Waterproofing and building envelope": 14300.0,
+          "Gas": 8630.0,
+          "Compliance and certification": 520.0,
+          "Other": 520.0
+        },
+        "quoted": {
+          "Sewer relining": 29800.0,
+          "Sewer excavation and replacement": 46480.0,
+          "Stormwater works": 18060.0,
+          "Shower and wet area waterproofing": 10940.0,
+          "Hot water plant": 2740.0,
+          "Gas": 40500.0,
+          "Water supply works": 9085.0,
+          "Preventative maintenance": 12215.0,
+          "Other": 3380.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 36102.0,
+          "Hot water": 38310.0,
+          "Cold water supply": 13500.0,
+          "Fixtures and tapware": 5250.0,
+          "Stormwater and roof drainage": 20600.0,
+          "Waterproofing and building envelope": 22480.0,
+          "Gas": 7650.0,
+          "Compliance and certification": 1040.0,
+          "Other": 340.0
+        },
+        "quoted": {
+          "Sewer relining": 35980.0,
+          "Sewer excavation and replacement": 31200.0,
+          "Stormwater works": 20070.0,
+          "Shower and wet area waterproofing": 22830.0,
+          "Compliance certification": 1100.0,
+          "Gas": 7520.0,
+          "Water supply works": 49480.0,
+          "Preventative maintenance": 12090.0,
+          "Other": 1450.0
+        },
+        "forecast": false
+      }
+    ],
+    "2025": [
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 37730.0,
+          "Hot water": 33240.0,
+          "Cold water supply": 10120.0,
+          "Fixtures and tapware": 8245.0,
+          "Stormwater and roof drainage": 5740.0,
+          "Waterproofing and building envelope": 18435.0,
+          "Gas": 3050.0,
+          "Other": 2999.0
+        },
+        "quoted": {
+          "Sewer relining": 37195.0,
+          "Sewer excavation and replacement": 31630.0,
+          "Stormwater works": 45520.0,
+          "Shower and wet area waterproofing": 8180.0,
+          "Compliance certification": 780.0,
+          "Hot water plant": 10060.0,
+          "Water supply works": 12790.0,
+          "Preventative maintenance": 7790.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 43680.0,
+          "Hot water": 22540.0,
+          "Cold water supply": 16815.0,
+          "Fixtures and tapware": 5829.0,
+          "Stormwater and roof drainage": 12970.0,
+          "Waterproofing and building envelope": 14750.0,
+          "Gas": 2000.0,
+          "Compliance and certification": 620.0,
+          "Other": 1400.0
+        },
+        "quoted": {
+          "Sewer relining": 52340.0,
+          "Sewer excavation and replacement": 29310.0,
+          "Stormwater works": 5460.0,
+          "Shower and wet area waterproofing": 20410.0,
+          "Compliance certification": 450.0,
+          "Hot water plant": 6560.0,
+          "Gas": 13400.0,
+          "Water supply works": 27380.0,
+          "Preventative maintenance": 12570.0,
+          "Other": 4610.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 33950.0,
+          "Hot water": 26250.0,
+          "Cold water supply": 9530.0,
+          "Fixtures and tapware": 5460.0,
+          "Stormwater and roof drainage": 11260.0,
+          "Waterproofing and building envelope": 9410.0,
+          "Gas": 580.0,
+          "Compliance and certification": 620.0,
+          "Other": 1552.0
+        },
+        "quoted": {
+          "Sewer relining": 33230.0,
+          "Sewer excavation and replacement": 52520.0,
+          "Stormwater works": 34812.0,
+          "Shower and wet area waterproofing": 10260.0,
+          "Hot water plant": 8180.0,
+          "Water supply works": 26549.0,
+          "Preventative maintenance": 13359.0,
+          "Other": 2230.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 47500.0,
+          "Hot water": 11290.0,
+          "Cold water supply": 26292.0,
+          "Fixtures and tapware": 5210.0,
+          "Stormwater and roof drainage": 22560.0,
+          "Waterproofing and building envelope": 17110.0,
+          "Gas": 3540.0,
+          "Other": 2036.0
+        },
+        "quoted": {
+          "Sewer relining": 15470.0,
+          "Sewer excavation and replacement": 13360.0,
+          "Stormwater works": 41519.0,
+          "Shower and wet area waterproofing": 5490.0,
+          "Hot water plant": 25290.0,
+          "Gas": 1815.0,
+          "Water supply works": 9450.0,
+          "Preventative maintenance": 4840.0,
+          "Other": 1120.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 24990.0,
+          "Hot water": 18460.0,
+          "Cold water supply": 8140.0,
+          "Fixtures and tapware": 8702.0,
+          "Stormwater and roof drainage": 8000.0,
+          "Waterproofing and building envelope": 10405.0,
+          "Gas": 1300.0,
+          "Other": 620.0
+        },
+        "quoted": {
+          "Sewer relining": 26900.0,
+          "Sewer excavation and replacement": 24990.0,
+          "Stormwater works": 40160.0,
+          "Shower and wet area waterproofing": 5670.0,
+          "Gas": 4950.0,
+          "Water supply works": 21820.0,
+          "Preventative maintenance": 11030.0,
+          "Other": 1750.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 33841.0,
+          "Hot water": 9740.0,
+          "Cold water supply": 13610.0,
+          "Fixtures and tapware": 3855.0,
+          "Stormwater and roof drainage": 20010.0,
+          "Waterproofing and building envelope": 6830.0,
+          "Gas": 1050.0,
+          "Other": 2612.0
+        },
+        "quoted": {
+          "Sewer relining": 62630.0,
+          "Sewer excavation and replacement": 23305.0,
+          "Stormwater works": 15940.0,
+          "Shower and wet area waterproofing": 8760.0,
+          "Hot water plant": 1440.0,
+          "Water supply works": 17710.0,
+          "Preventative maintenance": 23395.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 46970.0,
+          "Hot water": 16170.0,
+          "Cold water supply": 21380.0,
+          "Fixtures and tapware": 8250.0,
+          "Stormwater and roof drainage": 16760.0,
+          "Waterproofing and building envelope": 20540.0,
+          "Gas": 940.0,
+          "Other": 604.0
+        },
+        "quoted": {
+          "Sewer relining": 16030.0,
+          "Sewer excavation and replacement": 15836.0,
+          "Stormwater works": 10210.0,
+          "Shower and wet area waterproofing": 1530.0,
+          "Hot water plant": 1580.0,
+          "Water supply works": 22080.0,
+          "Preventative maintenance": 7030.0,
+          "Other": 4910.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 33590.0,
+          "Hot water": 13730.0,
+          "Cold water supply": 11070.0,
+          "Fixtures and tapware": 5770.0,
+          "Stormwater and roof drainage": 19720.0,
+          "Waterproofing and building envelope": 14890.0,
+          "Gas": 840.0,
+          "Compliance and certification": 580.0,
+          "Other": 3510.0
+        },
+        "quoted": {
+          "Sewer relining": 21200.0,
+          "Sewer excavation and replacement": 29050.0,
+          "Stormwater works": 21710.0,
+          "Shower and wet area waterproofing": 16200.0,
+          "Compliance certification": 520.0,
+          "Hot water plant": 1818.0,
+          "Water supply works": 40228.0,
+          "Preventative maintenance": 6690.0,
+          "Other": 1780.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 24100.0,
+          "Hot water": 14665.0,
+          "Cold water supply": 19750.0,
+          "Fixtures and tapware": 9340.0,
+          "Stormwater and roof drainage": 8530.0,
+          "Waterproofing and building envelope": 13500.0,
+          "Compliance and certification": 1040.0
+        },
+        "quoted": {
+          "Sewer relining": 37470.0,
+          "Sewer excavation and replacement": 23450.0,
+          "Stormwater works": 40770.0,
+          "Shower and wet area waterproofing": 1280.0,
+          "Hot water plant": 4730.0,
+          "Water supply works": 8630.0,
+          "Preventative maintenance": 10874.0,
+          "Other": 1460.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 45290.0,
+          "Hot water": 10090.0,
+          "Cold water supply": 8310.0,
+          "Fixtures and tapware": 7920.0,
+          "Stormwater and roof drainage": 12790.0,
+          "Waterproofing and building envelope": 9910.0,
+          "Gas": 1580.0
+        },
+        "quoted": {
+          "Sewer relining": 17493.0,
+          "Sewer excavation and replacement": 26680.0,
+          "Stormwater works": 21240.0,
+          "Shower and wet area waterproofing": 12720.0,
+          "Compliance certification": 1040.0,
+          "Hot water plant": 7140.0,
+          "Water supply works": 36350.0,
+          "Preventative maintenance": 14840.0,
+          "Other": 2020.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 47750.0,
+          "Hot water": 23520.0,
+          "Cold water supply": 11475.0,
+          "Fixtures and tapware": 7240.0,
+          "Stormwater and roof drainage": 14220.0,
+          "Waterproofing and building envelope": 18340.0,
+          "Gas": 5099.0,
+          "Compliance and certification": 1040.0,
+          "Other": 320.0
+        },
+        "quoted": {
+          "Sewer relining": 42540.0,
+          "Sewer excavation and replacement": 52482.0,
+          "Stormwater works": 15500.0,
+          "Shower and wet area waterproofing": 30085.0,
+          "Hot water plant": 6440.0,
+          "Gas": 24850.0,
+          "Water supply works": 45710.0,
+          "Preventative maintenance": 15240.0,
+          "Other": 6520.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 47590.0,
+          "Hot water": 16140.0,
+          "Cold water supply": 10130.0,
+          "Fixtures and tapware": 7600.0,
+          "Stormwater and roof drainage": 5940.0,
+          "Waterproofing and building envelope": 15105.0,
+          "Gas": 3110.0,
+          "Compliance and certification": 1570.0,
+          "Other": 1020.0
+        },
+        "quoted": {
+          "Sewer relining": 22450.0,
+          "Sewer excavation and replacement": 36670.0,
+          "Stormwater works": 19970.0,
+          "Shower and wet area waterproofing": 7650.0,
+          "Compliance certification": 520.0,
+          "Hot water plant": 12860.0,
+          "Gas": 10450.0,
+          "Water supply works": 35890.0,
+          "Preventative maintenance": 19460.0,
+          "Other": 2360.0
+        },
+        "forecast": false
+      }
+    ],
+    "2026": [
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 55800.0,
+          "Hot water": 26930.0,
+          "Cold water supply": 10900.0,
+          "Fixtures and tapware": 9610.0,
+          "Stormwater and roof drainage": 18175.0,
+          "Waterproofing and building envelope": 22910.0,
+          "Gas": 450.0,
+          "Compliance and certification": 1360.0,
+          "Other": 1160.0
+        },
+        "quoted": {
+          "Sewer relining": 56240.0,
+          "Sewer excavation and replacement": 32100.0,
+          "Stormwater works": 13050.0,
+          "Shower and wet area waterproofing": 13170.0,
+          "Hot water plant": 18270.0,
+          "Gas": 15580.0,
+          "Water supply works": 32190.0,
+          "Preventative maintenance": 7705.0,
+          "Other": 3240.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 38090.0,
+          "Hot water": 30020.0,
+          "Cold water supply": 13130.0,
+          "Fixtures and tapware": 6930.0,
+          "Stormwater and roof drainage": 20860.0,
+          "Waterproofing and building envelope": 31960.0,
+          "Gas": 7190.0,
+          "Compliance and certification": 2300.0,
+          "Other": 920.0
+        },
+        "quoted": {
+          "Sewer relining": 32906.0,
+          "Sewer excavation and replacement": 25750.0,
+          "Stormwater works": 29300.0,
+          "Shower and wet area waterproofing": 6020.0,
+          "Compliance certification": 680.0,
+          "Hot water plant": 10760.0,
+          "Gas": 2880.0,
+          "Water supply works": 27870.0,
+          "Preventative maintenance": 12700.0,
+          "Other": 1950.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 54800.0,
+          "Hot water": 19970.0,
+          "Cold water supply": 17600.0,
+          "Fixtures and tapware": 10000.0,
+          "Stormwater and roof drainage": 20410.0,
+          "Waterproofing and building envelope": 21820.0,
+          "Gas": 580.0,
+          "Compliance and certification": 2634.0,
+          "Other": 820.0
+        },
+        "quoted": {
+          "Sewer relining": 48520.0,
+          "Sewer excavation and replacement": 40610.0,
+          "Stormwater works": 43490.0,
+          "Shower and wet area waterproofing": 8540.0,
+          "Compliance certification": 620.0,
+          "Hot water plant": 6030.0,
+          "Water supply works": 42060.0,
+          "Preventative maintenance": 18090.0,
+          "Other": 2990.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 47440.0,
+          "Hot water": 12200.0,
+          "Cold water supply": 16730.0,
+          "Fixtures and tapware": 9905.0,
+          "Stormwater and roof drainage": 4160.0,
+          "Waterproofing and building envelope": 11150.0,
+          "Gas": 3680.0,
+          "Other": 1456.0
+        },
+        "quoted": {
+          "Sewer relining": 23180.0,
+          "Sewer excavation and replacement": 23289.0,
+          "Stormwater works": 42680.0,
+          "Shower and wet area waterproofing": 6310.0,
+          "Hot water plant": 2000.0,
+          "Gas": 6580.0,
+          "Water supply works": 35850.0,
+          "Preventative maintenance": 13060.0,
+          "Other": 4840.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 38270.0,
+          "Hot water": 6490.0,
+          "Cold water supply": 8150.0,
+          "Fixtures and tapware": 6690.0,
+          "Stormwater and roof drainage": 10380.0,
+          "Waterproofing and building envelope": 11050.0,
+          "Gas": 1900.0,
+          "Compliance and certification": 2620.0,
+          "Other": 3600.0
+        },
+        "quoted": {
+          "Sewer relining": 66770.0,
+          "Sewer excavation and replacement": 60770.0,
+          "Stormwater works": 37830.0,
+          "Shower and wet area waterproofing": 16470.0,
+          "Hot water plant": 5980.0,
+          "Water supply works": 40950.0,
+          "Preventative maintenance": 17400.0,
+          "Other": 1400.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 45620.0,
+          "Hot water": 12100.0,
+          "Cold water supply": 18450.0,
+          "Fixtures and tapware": 4420.0,
+          "Stormwater and roof drainage": 6500.0,
+          "Waterproofing and building envelope": 9460.0,
+          "Gas": 420.0,
+          "Compliance and certification": 680.0,
+          "Other": 670.0
+        },
+        "quoted": {
+          "Sewer relining": 27340.0,
+          "Sewer excavation and replacement": 13690.0,
+          "Stormwater works": 19850.0,
+          "Shower and wet area waterproofing": 6130.0,
+          "Gas": 7680.0,
+          "Water supply works": 33830.0,
+          "Preventative maintenance": 15660.0,
+          "Other": 6670.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 39730.0,
+          "Hot water": 23690.0,
+          "Cold water supply": 12590.0,
+          "Fixtures and tapware": 5399.0,
+          "Stormwater and roof drainage": 14080.0,
+          "Waterproofing and building envelope": 9605.0,
+          "Gas": 820.0,
+          "Other": 260.0
+        },
+        "quoted": {
+          "Sewer relining": 10950.0,
+          "Sewer excavation and replacement": 17570.0,
+          "Stormwater works": 50210.0,
+          "Shower and wet area waterproofing": 3680.0,
+          "Hot water plant": 5280.0,
+          "Water supply works": 9690.0,
+          "Preventative maintenance": 8150.0,
+          "Other": 11670.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 39230.0,
+          "Hot water": 22150.0,
+          "Cold water supply": 13080.0,
+          "Fixtures and tapware": 5900.0,
+          "Stormwater and roof drainage": 18180.0,
+          "Waterproofing and building envelope": 13040.0,
+          "Gas": 5720.0,
+          "Compliance and certification": 2380.0,
+          "Other": 1020.0
+        },
+        "quoted": {
+          "Sewer relining": 19240.0,
+          "Sewer excavation and replacement": 24860.0,
+          "Stormwater works": 32400.0,
+          "Compliance certification": 2760.0,
+          "Hot water plant": 19081.0,
+          "Water supply works": 14590.0,
+          "Preventative maintenance": 15470.0,
+          "Other": 2950.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 38710.0,
+          "Hot water": 19530.0,
+          "Cold water supply": 10100.0,
+          "Fixtures and tapware": 7960.0,
+          "Stormwater and roof drainage": 26440.0,
+          "Waterproofing and building envelope": 22920.0,
+          "Gas": 1420.0,
+          "Compliance and certification": 8660.0,
+          "Other": 1400.0
+        },
+        "quoted": {
+          "Sewer relining": 36390.0,
+          "Sewer excavation and replacement": 28960.0,
+          "Stormwater works": 49010.0,
+          "Shower and wet area waterproofing": 7470.0,
+          "Hot water plant": 6210.0,
+          "Gas": 2640.0,
+          "Water supply works": 50170.0,
+          "Preventative maintenance": 16060.0,
+          "Other": 4130.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 23623.0,
+          "Hot water": 17770.0,
+          "Cold water supply": 10000.0,
+          "Fixtures and tapware": 7726.0,
+          "Stormwater and roof drainage": 18240.0,
+          "Waterproofing and building envelope": 11820.0,
+          "Gas": 1680.0,
+          "Compliance and certification": 620.0,
+          "Other": 300.0
+        },
+        "quoted": {
+          "Sewer relining": 30650.0,
+          "Sewer excavation and replacement": 12570.0,
+          "Stormwater works": 12920.0,
+          "Shower and wet area waterproofing": 4380.0,
+          "Compliance certification": 680.0,
+          "Hot water plant": 4930.0,
+          "Gas": 5820.0,
+          "Water supply works": 3140.0,
+          "Preventative maintenance": 20230.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 58761.0,
+          "Hot water": 26310.0,
+          "Cold water supply": 7510.0,
+          "Fixtures and tapware": 10115.0,
+          "Stormwater and roof drainage": 13320.0,
+          "Waterproofing and building envelope": 8590.0,
+          "Gas": 6560.0,
+          "Other": 3040.0
+        },
+        "quoted": {
+          "Sewer relining": 58820.0,
+          "Sewer excavation and replacement": 27160.0,
+          "Stormwater works": 20690.0,
+          "Shower and wet area waterproofing": 8880.0,
+          "Compliance certification": 680.0,
+          "Hot water plant": 7560.0,
+          "Gas": 9370.0,
+          "Water supply works": 26170.0,
+          "Preventative maintenance": 24570.0
+        },
+        "forecast": false
+      },
+      {
+        "reactive": {
+          "Sewer and sanitary drainage": 59540.0,
+          "Hot water": 20193.0,
+          "Cold water supply": 12674.0,
+          "Fixtures and tapware": 9508.0,
+          "Stormwater and roof drainage": 7432.0,
+          "Waterproofing and building envelope": 18898.0,
+          "Gas": 3891.0,
+          "Compliance and certification": 1964.0,
+          "Other": 1276.0
+        },
+        "quoted": {
+          "Sewer relining": 28087.0,
+          "Sewer excavation and replacement": 45878.0,
+          "Stormwater works": 24985.0,
+          "Shower and wet area waterproofing": 9571.0,
+          "Compliance certification": 651.0,
+          "Hot water plant": 16089.0,
+          "Gas": 13074.0,
+          "Water supply works": 44902.0,
+          "Preventative maintenance": 24346.0,
+          "Other": 2953.0
+        },
+        "forecast": true
+      }
+    ]
+  },
+  "reactive_systems": [
+    "Sewer and sanitary drainage",
+    "Hot water",
+    "Cold water supply",
+    "Fixtures and tapware",
+    "Stormwater and roof drainage",
+    "Waterproofing and building envelope",
+    "Gas",
+    "Compliance and certification",
+    "Other"
+  ],
+  "quoted_types": [
+    "Sewer relining",
+    "Sewer excavation and replacement",
+    "Stormwater works",
+    "Shower and wet area waterproofing",
+    "Compliance certification",
+    "Hot water plant",
+    "Gas",
+    "Water supply works",
+    "Preventative maintenance",
+    "Other"
+  ],
+  "forecast_note": "June 2026 forecast = average of June 2024 ($370,572) and June 2025 ($321,250) = $345,911."
+};
+document.getElementById('fc-note').textContent = DATA.forecast_note;
+
+// ---------------------------------------------------------------------------
+// Palette
+// ---------------------------------------------------------------------------
+const PAL = {
+  '2024': { s: 'rgba(192,98,58,0.88)',  l: 'rgba(192,98,58,0.3)',  neg: 'rgba(192,98,58,0.52)'  },
+  '2025': { s: 'rgba(15,52,96,0.88)',   l: 'rgba(15,52,96,0.3)',   neg: 'rgba(15,52,96,0.48)'   },
+  '2026': { s: 'rgba(22,160,133,0.88)', l: 'rgba(22,160,133,0.3)', neg: 'rgba(22,160,133,0.48)' },
+};
+const HEX  = { '2024': '#c0623a', '2025': '#0f3460', '2026': '#16a085' };
+// Quoted bars use a warm amber that complements all three FY reactive colours
+// and is clearly distinct from the FY hues rather than looking grayed out.
+const QCOL = { '2024': 'rgba(200,148,42,0.88)', '2025': 'rgba(200,148,42,0.88)',
+               '2026': 'rgba(200,148,42,0.88)' };
+const QCOL_FC = 'rgba(200,148,42,0.32)'; // forecast segment of quoted
+
+function fmt(n) {
+  if (n == null) return 'n/a';
+  if (Math.abs(n) >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+  if (Math.abs(n) >= 1e3) return '$' + Math.round(n/1e3) + 'k';
+  return '$' + Math.round(n);
+}
+function fmtFull(n) {
+  return n == null ? 'n/a' : '$' + Math.round(n).toLocaleString('en-AU');
+}
+function fyLbl(fy) { return 'FY' + String(fy).slice(2); }
+
+// ---------------------------------------------------------------------------
+// KPI cards
+// ---------------------------------------------------------------------------
+(function buildKpis() {
+  const row  = document.getElementById('kpi-row');
+  const fys  = ['2024','2025','2026'];
+  fys.forEach((fy, i) => {
+    const d    = DATA.fy_annual[fy];
+    const prev = i > 0 ? DATA.fy_annual[fys[i-1]] : null;
+    const pct  = prev ? (d.revenue - prev.revenue) / prev.revenue * 100 : null;
+    const cls  = pct == null ? 'neu' : pct >= 0 ? 'up' : 'down';
+    const sign = pct != null && pct >= 0 ? '+' : '';
+    const grwHtml = pct != null
+      ? `<div class="grw ${cls}">${sign}${pct.toFixed(1)}% vs ${fyLbl(fys[i-1])}</div>`
+      : '<div class="grw neu">base year</div>';
+    const sub = fy === '2026' ? 'Jul 2025 to Jun 2026, Jun forecast' : d.jobs + ' jobs';
+    const el  = document.createElement('div');
+    el.className = 'kpi';
+    el.style.borderTopColor = HEX[fy];
+    el.innerHTML = `
+      <div class="lbl">${fyLbl(fy)}</div>
+      <div class="amt" style="color:${HEX[fy]}">${fmt(d.revenue)}</div>
+      ${grwHtml}
+      <div class="sub">${sub}</div>`;
+    row.appendChild(el);
+  });
+})();
+
+// ---------------------------------------------------------------------------
+// Main chart state
+// ---------------------------------------------------------------------------
+const activeFYs = new Set(['2024','2025','2026']);
+let mainView  = 'revenue';
+let mainSplit = 'total';
+
+document.getElementById('main-ctrls').addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+
+  if ('fy' in btn.dataset) {
+    const fy = btn.dataset.fy;
+    if (activeFYs.has(fy)) {
+      if (activeFYs.size > 1) { activeFYs.delete(fy); btn.classList.remove('on'); }
+    } else {
+      activeFYs.add(fy); btn.classList.add('on');
+    }
+    buildMain(); return;
+  }
+  if ('view' in btn.dataset) {
+    mainView = btn.dataset.view;
+    document.querySelectorAll('[data-view]').forEach(b =>
+      b.classList.toggle('on', b.dataset.view === mainView));
+    document.querySelectorAll('[data-split]').forEach(b =>
+      b.disabled = (mainView !== 'revenue'));
+    buildMain(); return;
+  }
+  if ('split' in btn.dataset) {
+    mainSplit = btn.dataset.split;
+    document.querySelectorAll('[data-split]').forEach(b =>
+      b.classList.toggle('on', b.dataset.split === mainSplit));
+    buildMain();
+  }
+});
+
+function buildMain() {
+  const ex = Chart.getChart('mainChart');
+  if (ex) ex.destroy();
+
+  const fys    = ['2024','2025','2026'].filter(f => activeFYs.has(f));
+  const labels = DATA.fy_months;
+  let   datasets = [];
+
+  if (mainView === 'revenue') {
+    if (mainSplit === 'total') {
+      fys.forEach(fy => datasets.push({
+        label: fyLbl(fy),
+        data:  DATA.monthly[fy].map(d => d.total),
+        backgroundColor: DATA.monthly[fy].map(d => d.forecast ? PAL[fy].l : PAL[fy].s),
+      }));
+    } else {
+      fys.forEach(fy => {
+        datasets.push({
+          label: fyLbl(fy) + ' Reactive',
+          data:  DATA.monthly[fy].map(d => d.reactive),
+          backgroundColor: DATA.monthly[fy].map(d => d.forecast ? PAL[fy].l : PAL[fy].s),
+          stack: 'st-' + fy,
+        });
+        datasets.push({
+          label: fyLbl(fy) + ' Quoted',
+          data:  DATA.monthly[fy].map(d => d.quoted),
+          backgroundColor: DATA.monthly[fy].map(d => d.forecast ? QCOL_FC : QCOL[fy]),
+          stack: 'st-' + fy,
+        });
+      });
+    }
+  } else {
+    // FY change %: FY24 -> FY25, FY25 -> FY26
+    const pairs = [];
+    for (let i = 1; i < fys.length; i++) pairs.push([fys[i-1], fys[i]]);
+    if (!pairs.length) { buildMain._empty = true; return; }
+    pairs.forEach(([prv, cur]) => {
+      const pcts = DATA.fy_months.map((_, mi) => {
+        const p = DATA.monthly[prv][mi].total;
+        const c = DATA.monthly[cur][mi].total;
+        return p ? Math.round((c - p) / p * 100) : null;
+      });
+      datasets.push({
+        label: fyLbl(prv) + ' → ' + fyLbl(cur),
+        data:  pcts,
+        backgroundColor: pcts.map(v =>
+          v == null ? 'transparent' : v >= 0 ? 'rgba(34,160,107,0.85)' : 'rgba(227,73,53,0.85)'),
+        borderRadius: 3,
+      });
+    });
+  }
+
+  const stacked = mainSplit === 'split' && mainView === 'revenue';
+  new Chart(document.getElementById('mainChart').getContext('2d'), {
+    type: 'bar',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      onClick: (_, elements) => {
+        if (elements.length) openDrilldown(elements[0].index);
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: item => {
+              if (mainView === 'pct') {
+                const v = item.raw;
+                return v == null ? 'no prior data' :
+                  item.dataset.label + ': ' + (v >= 0 ? '+' : '') + v + '%';
+              }
+              return item.dataset.label + ': ' + fmtFull(item.raw);
+            },
+            afterBody: items => {
+              if (mainView !== 'revenue') return [];
+              const mi    = items[0].index;
+              const fyIdx = stacked
+                ? Math.floor(items[0].datasetIndex / 2)
+                : items[0].datasetIndex;
+              const fy = fys[fyIdx];
+              if (!fy) return [];
+              const d = DATA.monthly[fy][mi];
+              const lines = [];
+              if (stacked) lines.push('Total: ' + fmtFull(d.total));
+              lines.push('Jobs: ' + (d.jobs ?? 'n/a'));
+              if (d.forecast) lines.push('[June 2026 forecast]');
+              return lines;
+            },
+          },
+        },
+        legend: { position: 'top', labels: { font: { size: 11 } } },
+      },
+      scales: {
+        x: { stacked, ticks: { font: { size: 10 } } },
+        y: { stacked, ticks: { font: { size: 10 },
+             callback: mainView === 'pct'
+               ? v => (v >= 0 ? '+' : '') + v + '%'
+               : v => fmt(v) } },
+      },
+    },
+  });
+}
+
+buildMain();
+setTimeout(() => { const c = Chart.getChart('mainChart'); if (c) c.resize(); }, 150);
+
+// ---------------------------------------------------------------------------
+// Drill-down
+// ---------------------------------------------------------------------------
+function openDrilldown(monthIdx) {
+  const fys = ['2024','2025','2026'].filter(f => activeFYs.has(f));
+  const name = DATA.fy_months[monthIdx];
+
+  document.getElementById('dd-title').textContent = name + ' — what is driving it';
+
+  const fysDiv = document.getElementById('dd-fys');
+  fysDiv.innerHTML = fys.map(fy => {
+    const d    = DATA.monthly[fy][monthIdx];
+    const prev = fy !== '2024' ? DATA.monthly[String(+fy - 1)] : null;
+    let   pct  = '';
+    if (prev) {
+      const pp = prev[monthIdx].total;
+      if (pp > 0) {
+        const p = Math.round((d.total - pp) / pp * 100);
+        pct = ` <span class="${p >= 0 ? 'up' : 'down'}">${p >= 0 ? '+' : ''}${p}%</span>`;
+      }
+    }
+    return `<span class="dd-fy" style="color:${HEX[fy]}">
+      <strong>${fyLbl(fy)}</strong> ${fmtFull(d.total)}${d.forecast ? '*' : ''}${pct}</span>`;
+  }).join('');
+
+  document.getElementById('drilldown').classList.add('open');
+  buildDrilldown(monthIdx, fys);
+  document.getElementById('drilldown').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function closeDrilldown() {
+  document.getElementById('drilldown').classList.remove('open');
+}
+
+// Short display labels for drill-down x-axis
+const SHORT = {
+  'R: Sewer and sanitary drainage':         'Sewer drain',
+  'R: Hot water':                           'Hot water',
+  'R: Cold water supply':                   'Cold water',
+  'R: Fixtures and tapware':                'Fixtures',
+  'R: Stormwater and roof drainage':        'Stormwater',
+  'R: Waterproofing and building envelope': 'Waterproofing',
+  'R: Gas':                                 'Gas',
+  'R: Compliance and certification':        'Compliance',
+  'R: Other':                               'Other',
+  'R: Unclassified':                        'Unclassified',
+  'Q: Sewer relining':                      'Relining',
+  'Q: Sewer excavation and replacement':    'Excavation',
+  'Q: Stormwater works':                    'Stormwater',
+  'Q: Shower and wet area waterproofing':   'Shower WP',
+  'Q: Compliance certification':            'Compliance cert',
+  'Q: Hot water plant':                     'HW plant',
+  'Q: Gas':                                 'Gas',
+  'Q: Water supply works':                  'Water supply',
+  'Q: Preventative maintenance':            'Prev maint',
+  'Q: Other':                               'Other',
+  'Q: Unclassified':                        'Unclassified',
+};
+
+// Lookup value for a category key in a drilldown record
+function catVal(cat, dd) {
+  if (!dd) return 0;
+  if (cat.startsWith('R: ')) return dd.reactive[cat.slice(3)] || 0;
+  if (cat.startsWith('Q: ')) return dd.quoted[cat.slice(3)] || 0;
+  return 0;
+}
+
+// Build all category keys present in either of two drilldown records
+function allCats(dd1, dd2) {
+  const s = new Set();
+  [dd1, dd2].forEach(dd => {
+    if (!dd) return;
+    Object.keys(dd.reactive).forEach(k => s.add('R: ' + k));
+    Object.keys(dd.quoted).forEach(k => s.add('Q: ' + k));
+  });
+  return [...s];
+}
+
+function buildDrilldown(monthIdx, fys) {
+  // Work out which consecutive FY pairs are both active
+  const allFYs = ['2024','2025','2026'];
+  const pairs  = [];
+  for (let i = 1; i < allFYs.length; i++) {
+    if (fys.includes(allFYs[i-1]) && fys.includes(allFYs[i])) {
+      pairs.push([allFYs[i-1], allFYs[i]]);
+    }
+  }
+  if (!pairs.length) {
+    document.getElementById('dd-note').textContent =
+      'Select at least two consecutive FYs to see what changed.';
+    return;
+  }
+
+  const isFc = DATA.drilldown[fys[fys.length-1]][monthIdx]?.forecast;
+  document.getElementById('dd-note').textContent =
+    'Bars above zero = category grew vs prior year. Bars below = category shrank. ' +
+    'Solid = destination FY colour, muted = fell back. ' +
+    'R = reactive by system, Q = quoted by type. ' +
+    (isFc ? 'June 2026 approximate (scaled from June 2025).' : '');
+
+  const chartsDiv = document.getElementById('dd-charts');
+  chartsDiv.className = 'dd-charts ' + (pairs.length >= 2 ? 'two-comp' : 'one-comp');
+  document.getElementById('dd-panel-b').style.display = pairs.length >= 2 ? '' : 'none';
+
+  const panelIds = ['A', 'B'];
+
+  pairs.slice(0, 2).forEach(([prv, cur], pi) => {
+    const canvasId = 'ddChart' + panelIds[pi];
+    const ex = Chart.getChart(canvasId);
+    if (ex) ex.destroy();
+
+    const prvDD   = DATA.drilldown[prv][monthIdx];
+    const curDD   = DATA.drilldown[cur][monthIdx];
+    const cats    = allCats(prvDD, curDD);
+    const prvTotal = Math.round(DATA.monthly[prv][monthIdx].total);
+    const curTotal = Math.round(DATA.monthly[cur][monthIdx].total);
+
+    // Compute deltas, sort biggest positive first down to most negative
+    const rows = cats.map(c => ({
+      cat:   c,
+      lbl:   (c.startsWith('R: ') ? 'R: ' : 'Q: ') + (SHORT[c] || c.slice(3)),
+      delta: Math.round(catVal(c, curDD) - catVal(c, prvDD)),
+    })).filter(r => r.delta !== 0)
+      .sort((a, b) => b.delta - a.delta)
+      .slice(0, 10);
+
+    const nRows = rows.length;
+
+    // Panel title badge
+    const totalDelta = curTotal - prvTotal;
+    const pct  = Math.round(totalDelta / prvTotal * 100);
+    const sign = pct >= 0 ? '+' : '';
+    const cls  = pct >= 0 ? 'up' : 'down';
+    const titleEl = document.getElementById('dd-title-' + panelIds[pi].toLowerCase());
+    titleEl.textContent =
+      fyLbl(prv) + ' → ' + fyLbl(cur) + ':  ' + sign + pct + '%' +
+      '  (' + (totalDelta >= 0 ? '+' : '') + fmtFull(totalDelta) + ')';
+    titleEl.className = cls;
+
+    // Signed delta bars: positive above zero (grew), negative below (shrank).
+    // Zero line marked clearly. Categories sorted biggest impact first.
+    // FY25 → FY26 shown in title with start and end values.
+    const bgColrs = rows.map(r => r.delta >= 0 ? PAL[cur].s : PAL[cur].neg);
+
+    new Chart(document.getElementById(canvasId).getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: rows.map(r => r.lbl),
+        datasets: [{
+          label:           fyLbl(prv) + ' → ' + fyLbl(cur),
+          data:            rows.map(r => r.delta),
+          backgroundColor: bgColrs,
+          borderRadius:    3,
+          borderSkipped:   false,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: items => rows[items[0].dataIndex].cat,
+              afterLabel: items => [
+                'Change: ' + (items[0].raw >= 0 ? '+' : '') + fmtFull(items[0].raw),
+                'From: ' + fmtFull(prvTotal) + ' → To: ' + fmtFull(curTotal),
+              ],
+            },
+          },
+        },
+        scales: {
+          x: { ticks: { font: { size: 9.5 }, maxRotation: 42, minRotation: 30 } },
+          y: {
+            ticks: { font: { size: 10 }, callback: v => fmt(v) },
+            grid:  {
+              color:     ctx => ctx.tick.value === 0 ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.06)',
+              lineWidth: ctx => ctx.tick.value === 0 ? 2 : 1,
+            },
+          },
+        },
+      },
+    });
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Annual summary
+// ---------------------------------------------------------------------------
+function buildAnnual() {
+  const ex = Chart.getChart('annChart');
+  if (ex) ex.destroy();
+
+  const fys    = ['2024','2025','2026'];
+  const labels = fys.map(fy => fyLbl(fy) + (DATA.fy_annual[fy].partial ? '*' : ''));
+  const fc_r   = 150194.39;
+  const fc_q   = 195717.03;
+
+  new Chart(document.getElementById('annChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Reactive',
+          data:  fys.map(fy => {
+            const d = DATA.fy_annual[fy];
+            return Math.round(d.reactive - (fy === '2026' ? fc_r : 0));
+          }),
+          backgroundColor: fys.map(fy => PAL[fy].s),
+          stack: 's',
+        },
+        {
+          label: 'Quoted',
+          data:  fys.map(fy => {
+            const d = DATA.fy_annual[fy];
+            return Math.round(d.quoted - (fy === '2026' ? fc_q : 0));
+          }),
+          backgroundColor: fys.map(fy => QCOL[fy]),
+          stack: 's',
+        },
+        {
+          label: 'Forecast (Jun 2026)',
+          data:  fys.map(fy => fy === '2026' ? Math.round(fc_r + fc_q) : 0),
+          backgroundColor: 'rgba(22,160,133,0.25)',
+          stack: 's',
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: item => item.dataset.label + ': ' + fmtFull(item.raw),
+            afterBody: items => {
+              const fy = fys[items[0].dataIndex];
+              const d  = DATA.fy_annual[fy];
+              return ['Total: ' + fmtFull(d.revenue), 'Jobs: ' + d.jobs,
+                      d.partial ? '(Jun 2026 is forecast)' : ''].filter(Boolean);
+            },
+          },
+        },
+        legend: { position: 'top', labels: { font: { size: 10 } } },
+      },
+      scales: {
+        x: { stacked: true, ticks: { font: { size: 11 } } },
+        y: { stacked: true, ticks: { font: { size: 10 }, callback: v => fmt(v) } },
+      },
+    },
+  });
+}
+
+setTimeout(buildAnnual, 60);
+
+// ---------------------------------------------------------------------------
+// Expand
+// ---------------------------------------------------------------------------
+let expandedCard = null;
+window.toggleExpand = function(cardId, chartId) {
+  const card = document.getElementById(cardId);
+  const bd   = document.getElementById('backdrop');
+  if (card.classList.contains('expanded')) {
+    card.classList.remove('expanded'); bd.classList.remove('on'); expandedCard = null;
+  } else {
+    if (expandedCard) document.getElementById(expandedCard).classList.remove('expanded');
+    card.classList.add('expanded'); bd.classList.add('on'); expandedCard = cardId;
+    setTimeout(() => { const c = Chart.getChart(chartId); if (c) c.resize(); }, 50);
+  }
+};
+window.collapseAll = function() {
+  if (expandedCard) {
+    document.getElementById(expandedCard).classList.remove('expanded');
+    expandedCard = null;
+  }
+  document.getElementById('backdrop').classList.remove('on');
+};
+</script>
+</body>
+</html>

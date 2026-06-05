@@ -1,0 +1,20 @@
+# Data - never publish
+data/
+
+# Analysis scripts
+src/
+
+# Python environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Internal docs
+output/owner-review.md
